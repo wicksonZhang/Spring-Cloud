@@ -1,7 +1,6 @@
 package cn.wickson.cloud.payment.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.wickson.cloud.common.model.dto.PaymentRespDTO;
 import cn.wickson.cloud.common.model.entity.Payment;
 import cn.wickson.cloud.common.model.vo.PaymentCreateReqVO;
@@ -21,7 +20,7 @@ import java.util.List;
 @Service
 public class PaymentServiceImpl implements IPaymentService {
 
-    private static List<Payment> list = new ArrayList<>();
+    private static final List<Payment> LIST = new ArrayList<>();
 
     /**
      * 创建支付信息
@@ -31,7 +30,7 @@ public class PaymentServiceImpl implements IPaymentService {
     @Override
     public void create(final PaymentCreateReqVO paymentVO) {
         Payment payment = PaymentConvert.INSTANCE.toEntity(paymentVO);
-        list.add(payment);
+        LIST.add(payment);
     }
 
     /**
@@ -42,12 +41,12 @@ public class PaymentServiceImpl implements IPaymentService {
      */
     @Override
     public PaymentRespDTO getById(final Long id) {
-        if (CollUtil.isEmpty(list)) {
+        if (CollUtil.isEmpty(LIST)) {
             return new PaymentRespDTO();
         }
 
         PaymentRespDTO paymentRespDTO = new PaymentRespDTO();
-        for (Payment payment : list) {
+        for (Payment payment : LIST) {
             Long paymentId = payment.getId();
             if (paymentId.equals(id)) {
                 paymentRespDTO = PaymentConvert.INSTANCE.toDTO(payment);
