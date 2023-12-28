@@ -16,7 +16,17 @@ public enum ResultCodeEnum {
     /**
      * 成功状态码：1
      */
-    SUCCESS(1, "成功");
+    SUCCESS(1, "成功"),
+
+    /**
+     * 参数错误码：1001-1999
+     */
+    PARAM_IS_INVALID(1001, "参数无效"),
+    PARAM_IS_BLANK(1002, "参数为空"),
+    PARAM_TYPE_BIND_ERROR(1003, "参数类型错误"),
+    PARAM_NOT_COMPLETE(1004, "参数缺失"),
+    PARAM_REQUEST_DATA_FORMAT_INVALID(1005, "请求参数的数据格式错误"),
+    PARAM_VALIDATED_FAILURE(1006, "参数校验失败");
 
     /**
      * 状态码
