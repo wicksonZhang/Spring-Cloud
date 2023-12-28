@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>03-spring-cloud-eureka-order-3100</artifactId>
+    <artifactId>03-spring-cloud-singleton-eureka-order-3100</artifactId>
 
     <dependencies>
         <!-- 公共依赖包 -->
@@ -24,7 +24,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>
