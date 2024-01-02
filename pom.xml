@@ -18,6 +18,11 @@
         <module>03-spring-cloud-singleton-eureka-server-3000</module>
         <module>03-spring-cloud-singleton-eureka-order-3100</module>
         <module>03-spring-cloud-singleton-eureka-payment-3200</module>
+        <module>03-spring-cloud-cluster-eureka-server-3300</module>
+        <module>03-spring-cloud-cluster-eureka-server-3400</module>
+        <module>03-spring-cloud-cluster-eureka-order-3500</module>
+        <module>03-spring-cloud-cluster-eureka-payment-3600</module>
+        <module>03-spring-cloud-cluster-eureka-payment-3700</module>
     </modules>
 
     <!-- 统一管理jar包版本 -->

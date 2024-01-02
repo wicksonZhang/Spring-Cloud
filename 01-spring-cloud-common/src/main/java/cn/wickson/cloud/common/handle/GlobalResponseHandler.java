@@ -18,7 +18,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @date 2023-12-27
  */
 @ControllerAdvice(
-        basePackages = {"cn.wickson.cloud.payment.controller", "cn.wickson.cloud.order.controller"})
+        basePackages = {
+                "cn.wickson.cloud.payment.controller",
+                "cn.wickson.cloud.order.controller",
+                "cn.wickson.cloud.cluster.eureka.order.controller",
+                "cn.wickson.cloud.cluster.eureka.payment1.controller",
+                "cn.wickson.cloud.cluster.eureka.payment2.controller",
+        })
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 
     /**

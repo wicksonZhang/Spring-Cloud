@@ -1,4 +1,4 @@
-package cn.wickson.cloud.singleton.eureka.payment;
+package cn.wickson.cloud.cluster.eureka.payment2;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,14 +8,14 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
  * 支付服务-微服务启用类
  *
  * @author ZhangZiHeng
- * @date 2023-12-28
+ * @date 2023-12-27
  */
 @EnableEurekaClient
-@SpringBootApplication
-public class SpringCloudSingletonEurekaPaymentApplication {
+@SpringBootApplication(scanBasePackages = {"cn.wickson.cloud"})
+public class SpringCloudClusterEurekaPayment2Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringCloudSingletonEurekaPaymentApplication.class, args);
+        SpringApplication.run(SpringCloudClusterEurekaPayment2Application.class, args);
     }
 
 }

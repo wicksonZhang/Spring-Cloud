@@ -29,4 +29,9 @@ public class PaymentRespDTO {
      */
     private String amount;
 
+    /**
+     * 请求端口
+     */
+    private int port;
+
 }
