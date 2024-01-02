@@ -1,6 +1,17 @@
 # Spring Cloud Eureka
 
 > 本章节的代码：https://github.com/wicksonZhang/Spring-Cloud
+>
+> 我们只需要聚焦在如下8个服务当中（cluster-集群、singleton-单机）：
+>
+> * [03-spring-cloud-cluster-eureka-order-3500](https://github.com/wicksonZhang/Spring-Cloud/tree/main/03-spring-cloud-cluster-eureka-order-3500)
+> * [03-spring-cloud-cluster-eureka-payment-3600](https://github.com/wicksonZhang/Spring-Cloud/tree/main/03-spring-cloud-cluster-eureka-payment-3600)
+> * [03-spring-cloud-cluster-eureka-payment-3700](https://github.com/wicksonZhang/Spring-Cloud/tree/main/03-spring-cloud-cluster-eureka-payment-3700)
+> * [03-spring-cloud-cluster-eureka-server-3300](https://github.com/wicksonZhang/Spring-Cloud/tree/main/03-spring-cloud-cluster-eureka-server-3300)
+> * [03-spring-cloud-cluster-eureka-server-3400](https://github.com/wicksonZhang/Spring-Cloud/tree/main/03-spring-cloud-cluster-eureka-server-3400)
+> * [03-spring-cloud-singleton-eureka-order-3100](https://github.com/wicksonZhang/Spring-Cloud/tree/main/03-spring-cloud-singleton-eureka-order-3100)
+> * [03-spring-cloud-singleton-eureka-payment-3200](https://github.com/wicksonZhang/Spring-Cloud/tree/main/03-spring-cloud-singleton-eureka-payment-3200)
+> * [03-spring-cloud-singleton-eureka-server-3000](https://github.com/wicksonZhang/Spring-Cloud/tree/main/03-spring-cloud-singleton-eureka-server-3000)
 
 ## 基础概念
 
