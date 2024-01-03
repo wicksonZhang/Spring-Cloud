@@ -601,6 +601,14 @@ public class SpringCloudClusterEurekaPayment1Application {
 
 
 
+### 单元测试
+
+* 我们测试集群环境是否搭建成功
+
+![动画](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401031409099.gif)
+
+
+
 ## Eureka 服务发现
 
 * 具体信息可以参考博文：https://developer.aliyun.com/article/1133813

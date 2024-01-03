@@ -23,6 +23,8 @@
         <module>03-spring-cloud-cluster-eureka-order-3500</module>
         <module>03-spring-cloud-cluster-eureka-payment-3600</module>
         <module>03-spring-cloud-cluster-eureka-payment-3700</module>
+        <module>04-spring-cloud-singleton-zookeeper-payment-4000</module>
+        <module>04-spring-cloud-singleton-zookeeper-order-4100</module>
     </modules>
 
     <!-- 统一管理jar包版本 -->
