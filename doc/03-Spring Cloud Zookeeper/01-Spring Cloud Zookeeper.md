@@ -1,6 +1,12 @@
 # Spring Cloud Zookeeper
 
 > 本章节的代码：https://github.com/wicksonZhang/Spring-Cloud
+>
+> 我们只需要聚焦在如下2个服务当中（singleton-单机）：
+>
+> * [04-spring-cloud-singleton-zookeeper-order-4100](https://github.com/wicksonZhang/Spring-Cloud/tree/main/04-spring-cloud-singleton-zookeeper-order-4100)
+>
+> * [04-spring-cloud-singleton-zookeeper-payment-4000](https://github.com/wicksonZhang/Spring-Cloud/tree/main/04-spring-cloud-singleton-zookeeper-payment-4000)
 
 ## 基础概念
 
@@ -89,7 +95,7 @@
 
   
 
-## `Zookeeper` 命令
+## 启动 `Zookeeper` 
 
 > 本次搭建的环境是 `Zookeeper` 的单机环境
 
@@ -182,7 +188,24 @@ WatchedEvent state:SyncConnected type:None path:null
 
 
 
-## 创建支付服务
+## Zookeeper 单机操作
+
+* 实现需求
+
+  * 我们将上一章节的 订单、支付微服务注册到 `Zookeeper` 当中
+
+* 实现思路
+
+  * Step-1：创建支付服务 `04-spring-cloud-singleton-zookeeper-payment-4000`
+  * Step-2：创建订单服务 `04-spring-cloud-singleton-zookeeper-order-4100`
+
+* 代码结构
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401031709896.png" alt="image-20240103170907862" style="zoom:100%;float:left" />
+
+  
+
+### 创建支付服务
 
 * 创建支付服务：`04-spring-cloud-singleton-zookeeper-payment-4000`
 * 实现步骤
@@ -283,7 +306,7 @@ public class PaymentController {
 
 
 
-## 创建订单服务
+### 创建订单服务
 
 * 创建订单服务：`04-spring-cloud-singleton-zookeeper-order-4100`
 
@@ -416,9 +439,9 @@ public class RestTemplateConfig {
 
 
 
-## 单元测试
+### 单元测试
 
-### 是否在 `Zookeeper` 注册节点
+#### 是否在 `Zookeeper` 注册节点
 
 ```sh
 [zk: localhost:2181(CONNECTED) 36] ls /
@@ -429,7 +452,7 @@ public class RestTemplateConfig {
 
 
 
-### 查看支付服务信息
+#### 查看支付服务信息
 
 ```sh
 [zk: localhost:2181(CONNECTED) 38] ls /services/spring-cloud-zookeeper-payment-4000 
@@ -478,7 +501,7 @@ public class RestTemplateConfig {
 
 
 
-### 查看订单服务信息
+#### 查看订单服务信息
 
 ```sh
 [zk: localhost:2181(CONNECTED) 40] ls /services/spring-cloud-zookeeper-order-4100                                        
@@ -527,7 +550,7 @@ public class RestTemplateConfig {
 
 
 
-### 访问订单服务
+#### 访问订单服务
 
 * [http://localhost:4100/order/getPayment/zk - Error](http://localhost:4100/order/getPayment/zk)
 
