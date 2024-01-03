@@ -277,7 +277,7 @@
 
 > 访问订单服务时，我们可以看到对应的端口信息时 支付微服务的 5000
 
-<img src="C:\Users\minuo-java02\AppData\Roaming\Typora\typora-user-images\image-20240103173057222.png" alt="image-20240103173057222" style="zoom:100%;float:left" />
+<img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401031757127.png" alt="image-20240103173057222" style="zoom:100%;float:left" />
 
 
 
