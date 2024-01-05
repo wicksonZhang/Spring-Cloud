@@ -13,7 +13,7 @@ import org.springframework.cloud.netflix.ribbon.RibbonClient;
  * @date 2024-01-04
  */
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"cn.wickson.cloud"})
 @RibbonClient(name = "SPRING-CLOUD-CLUSTER-EUREKA-PAYMENT", configuration = MySelfRule.class)
 public class SpringCloudRibbonOrderApplication {
 

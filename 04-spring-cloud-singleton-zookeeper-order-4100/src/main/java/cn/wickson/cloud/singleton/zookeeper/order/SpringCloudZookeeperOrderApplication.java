@@ -12,7 +12,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 // 用于向 consul 或者 zookeeper 作为注册中心注册微服务
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"cn.wickson.cloud"})
 public class SpringCloudZookeeperOrderApplication {
 
     public static void main(String[] args) {

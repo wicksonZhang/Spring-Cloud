@@ -42,7 +42,7 @@ public class PaymentServiceImpl implements IPaymentService {
     @Override
     public PaymentRespDTO getById(final Long id) {
         if (CollUtil.isEmpty(LIST)) {
-            return new PaymentRespDTO();
+            return PaymentRespDTO.getInstance();
         }
 
         PaymentRespDTO paymentRespDTO = new PaymentRespDTO();

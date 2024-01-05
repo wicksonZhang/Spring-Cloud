@@ -11,7 +11,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @date 2024-01-03
  */
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"cn.wickson.cloud"})
 public class SpringCloudConsulPayment {
 
     public static void main(String[] args) {

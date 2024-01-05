@@ -11,7 +11,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
  * @date 2023-12-28
  */
 @EnableEurekaClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"cn.wickson.cloud"})
 public class SpringCloudSingletonEurekaOrderApplication {
 
     public static void main(String[] args) {

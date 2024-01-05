@@ -34,4 +34,13 @@ public class PaymentRespDTO {
      */
     private int port;
 
+    /**
+     * 获取类实例
+     *
+     * @return
+     */
+    public static PaymentRespDTO getInstance() {
+        return new PaymentRespDTO();
+    }
+
 }
