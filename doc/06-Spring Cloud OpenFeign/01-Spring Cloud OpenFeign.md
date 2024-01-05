@@ -66,21 +66,146 @@
 
 ## OpenFeign 具体实现
 
+* 实现需求
+
+  * 我们本章节的 `OpenFeign` 实现，还是基于我们 `Eureka` 的集群案例，只是不需要订单服务。采用 `OpenFeign` 的服务。
+
+* 实现思路
+
+  * 其他的四个服务我们还是延用 Eureka 的集群版。
+  * Step-1：创建订单服务 `07-spring-cloud-openfeign-order-7000`
+
+* 代码结构
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401051751669.png" alt="image-20240105175111635" style="zoom:100%;float:left" />
 
 
 
+* 实现步骤
 
+  1. Step-1：导入 `pom.xml` 依赖
+  2. Step-2：修改 `application.properties` 文件
+  3. Step-3：创建主启动类
+  4. Step-4：编写服务调用接口
+  5. Step-5：编写控制类
+* **Step-1：导入 `pom.xml` 依赖**
+  * 本次需要导入依赖：`spring-cloud-starter-openfeign`
 
+```xml
+    <dependencies>
+        <!-- 公共依赖包 -->
+        <dependency>
+            <groupId>cn.wickson.cloud</groupId>
+            <artifactId>01-spring-cloud-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
+        <!-- 服务注册中心的客户端端 eureka-client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
 
+        <!-- 服务调用依赖包：OpenFeign -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+    </dependencies>
+```
 
+* **Step-2：修改 `application.properties` 文件**
 
+```properties
+# 服务端口
+server.port=7000
+# 应用名称
+spring.application.name=spring-cloud-openfeign-order
+# 是否向注册中心注册自己
+eureka.client.register-with-eureka=true
+# 表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+eureka.client.fetch-registry=true
+# 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+eureka.client.serviceUrl.defaultZone=http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
 
+# 默认就是应用名称:端口，设置Eureka服务实例的唯一标识为 spring-cloud-cluster-eureka-order:3500
+eureka.instance.instance-id=spring-cloud-openfeign-order:7000
+# 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+eureka.instance.prefer-ip-address=true
+```
 
+* **Step-3：创建主启动类**
+  * 在启动类中开启服务调用注解：`@EnableFeignClients`
 
+```java
+/**
+ * OpenFeign 主启动类
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-05
+ */
+@EnableFeignClients
+@EnableEurekaClient
+@SpringBootApplication(scanBasePackages = {"cn.wickson.cloud"})
+public class SpringCloudOpenFeignOrderApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(SpringCloudOpenFeignOrderApplication.class, args);
+    }
 
+}
+```
 
+* **Step-4：编写服务调用接口**
 
+```java
+/**
+ * 远程调用支付服务接口
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-05
+ */
+@Component
+@FeignClient(value = "SPRING-CLOUD-CLUSTER-EUREKA-PAYMENT")
+public interface IPaymentFeignService {
 
+    /**
+     * 调用支付服务的顶单请求
+     */
+    @GetMapping("/payment/getById/{id}")
+    public PaymentRespDTO getPaymentById(@PathVariable("id") Long id);
 
+}
+```
+
+* **Step-5：编写控制类**
+
+```java
+@Slf4j
+@Validated
+@RestController
+@RequestMapping("/order")
+public class OrderController {
+
+    @Resource
+    private IPaymentFeignService paymentFeignService;
+
+    /**
+     * 获取订单
+     * restTemplate.getForObject：返回对象为响应体中数据转化成的对象，基本上可以理解为 Json
+     *
+     * @param id id
+     * @return ResultUtil
+     */
+    @GetMapping("/getPayment/{id}")
+    public PaymentRespDTO getPaymentByObject(@PathVariable("id") Long id) {
+        PaymentRespDTO paymentRespDTO = paymentFeignService.getPaymentById(id);
+        log.debug("paymentRespDTO: " + paymentRespDTO);
+        return paymentRespDTO;
+    }
+}
+```
+
+* 测试结果如下
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401051758015.gif" alt="动画" style="zoom:100%;float:left" />
