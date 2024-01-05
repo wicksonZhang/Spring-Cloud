@@ -17,6 +17,10 @@ public enum ResultCodeEnum {
      * 成功状态码：1
      */
     SUCCESS(1, "成功"),
+    /**
+     * 失败状态码
+     */
+    FAILURE(0, "失败"),
 
     /**
      * 参数错误码：1001-1999

@@ -28,6 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
                 "cn.wickson.cloud.singleton.zookeeper.order.controller",
                 "cn.wickson.cloud.singleton.consul.payment.controller",
                 "cn.wickson.cloud.singleton.consul.order.controller",
+                "cn.wickson.cloud.ribbon.order.controller"
         })
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 
