@@ -30,7 +30,10 @@ public enum ResultCodeEnum {
     PARAM_TYPE_BIND_ERROR(1003, "参数类型错误"),
     PARAM_NOT_COMPLETE(1004, "参数缺失"),
     PARAM_REQUEST_DATA_FORMAT_INVALID(1005, "请求参数的数据格式错误"),
-    PARAM_VALIDATED_FAILURE(1006, "参数校验失败");
+    PARAM_VALIDATED_FAILURE(1006, "参数校验失败"),
+
+    /* 系统错误码：9001-9999 */
+    SYSTEM_ERROR(9999, "系统繁忙，请稍后重试...");
 
     /**
      * 状态码

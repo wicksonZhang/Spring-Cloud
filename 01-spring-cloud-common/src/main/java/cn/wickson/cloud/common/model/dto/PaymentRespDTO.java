@@ -1,10 +1,13 @@
 package cn.wickson.cloud.common.model.dto;
 
+import cn.wickson.cloud.common.utils.ResultUnpacked;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
 
 /**
  * 支付订单-返回DTO
@@ -17,7 +20,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PaymentRespDTO {
+public class PaymentRespDTO implements ResultUnpacked, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 支付ID

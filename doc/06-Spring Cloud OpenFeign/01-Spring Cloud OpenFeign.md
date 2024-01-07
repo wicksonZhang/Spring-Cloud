@@ -209,3 +209,107 @@ public class OrderController {
 * 测试结果如下
 
   <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401051758015.gif" alt="动画" style="zoom:100%;float:left" />
+
+
+
+## OpenFeign 连接超时
+
+* **Open Feign 连接超时配置默认是 1S**
+
+实现步骤
+
+* 直接在配置文件中添加 `OpenFeign` 连接超时配置
+
+```properties
+########################## open Feign 配置连接超时-start ##########################
+# 建立连接所有的时间，适用于网络状况正常的情况，两端建立所花费时间
+feign.client.config.default.connect-timeout=5000
+# 建立连接后服务端读取可用资源所有的时间，默认是 1S
+feign.client.config.default.read-timeout=5000
+##########################  open Feign 配置连接超时-end  ##########################
+```
+
+* 在全局异常配置文件中配置
+
+```java
+    /**
+     * 系统异常处理
+     */
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Throwable.class)
+    public ResultUtil handleThrowable(Throwable e, HttpServletRequest request) {
+        log.error("requestUrl：{}，系统内部异常", request.getRequestURI(), e);
+        return ResultUtil.failure(ResultCodeEnum.SYSTEM_ERROR);
+    }
+```
+
+* 测试，我们在 `PaymentService` 中打上断点
+
+  ![动画](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401071827894.gif)
+
+
+
+## OpenFeign 日志打印
+
+**日志级别**
+
+1. `NONE`：默认的，不显示任何日志
+2. `Basic`：仅记录请求方法、URL、响应状态以及执行时间
+3. `Headers`：除了 `Basic` 中定义的信息之外，还有请求和响应头信息
+4. `Full`：除了 `Headers` 中定义的信息之外，还有请求和响应的正文以及元数据
+
+
+
+**开启日志打印** 
+
+* `FeignConfig.java`
+
+```java
+/**
+ * OpenFeign 日志配置
+ */
+@Configuration
+public class FeignConfig {
+
+    /**
+     * 1. `NONE`：默认的，不显示任何日志
+     * 2. `Basic`：仅记录请求方法、URL、响应状态以及执行时间
+     * 3. `Headers`：除了 `Basic` 中定义的信息之外，还有请求和响应头信息
+     * 4. `Full`：除了 `Headers` 中定义的信息之外，还有请求和响应的正文以及元数据
+     *
+     * @return Logger.Level
+     */
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+
+}
+```
+
+* `application.properties`
+
+```properties
+########################## open Feign 日志打印-start ##########################
+logging.level.cn.wickson.cloud.openfeign.order.feign.IPaymentFeignService=debug
+##########################  open Feign 日志打印-end  ##########################
+```
+
+
+
+**测试**
+
+```java
+2024-01-07 19:07:47.416 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] ---> GET http://SPRING-CLOUD-CLUSTER-EUREKA-PAYMENT/payment/getById/1 HTTP/1.1
+2024-01-07 19:07:47.416 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] ---> END HTTP (0-byte body)
+2024-01-07 19:07:47.425 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] <--- HTTP/1.1 200 (8ms)
+2024-01-07 19:07:47.425 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] connection: keep-alive
+2024-01-07 19:07:47.425 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] content-type: application/json
+2024-01-07 19:07:47.425 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] date: Sun, 07 Jan 2024 11:07:47 GMT
+2024-01-07 19:07:47.425 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] keep-alive: timeout=60
+2024-01-07 19:07:47.425 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] transfer-encoding: chunked
+2024-01-07 19:07:47.425 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] 
+2024-01-07 19:07:47.425 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] {"id":1,"amount":"1000.99","port":3600}
+2024-01-07 19:07:47.425 DEBUG 16240 --- [nio-7000-exec-2] c.w.c.o.o.feign.IPaymentFeignService     : [IPaymentFeignService#getPaymentById] <--- END HTTP (39-byte body)
+```
+

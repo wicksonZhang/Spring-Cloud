@@ -28,6 +28,16 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     /**
+     * 系统异常处理
+     */
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Throwable.class)
+    public ResultUtil handleThrowable(Throwable e, HttpServletRequest request) {
+        log.error("requestUrl：{}，系统内部异常", request.getRequestURI(), e);
+        return ResultUtil.failure(ResultCodeEnum.SYSTEM_ERROR);
+    }
+
+    /**
      * 自定义用户操作异常处理
      */
     @ResponseStatus(HttpStatus.OK)

@@ -17,6 +17,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Payment implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * 支付ID
      */
