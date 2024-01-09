@@ -29,7 +29,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
                 "cn.wickson.cloud.singleton.consul.payment.controller",
                 "cn.wickson.cloud.singleton.consul.order.controller",
                 "cn.wickson.cloud.ribbon.order.controller",
-                "cn.wickson.cloud.openfeign.order.controller"
+                "cn.wickson.cloud.openfeign.order.controller",
+                "cn.wickson.cloud.hystrix.order.controller",
+                "cn.wickson.cloud.hystrix.payment.controller"
         })
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 

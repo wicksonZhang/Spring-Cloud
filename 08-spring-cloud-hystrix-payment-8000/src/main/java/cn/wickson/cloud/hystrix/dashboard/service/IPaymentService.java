@@ -1,4 +1,4 @@
-package cn.wickson.cloud.hystrix.payment.service;
+package cn.wickson.cloud.hystrix.dashboard.service;
 
 import cn.wickson.cloud.common.utils.ResultUtil;
 

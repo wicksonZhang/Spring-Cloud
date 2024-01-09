@@ -31,6 +31,7 @@
         <module>07-spring-cloud-openfeign-order-7000</module>
         <module>08-spring-cloud-hystrix-payment-8000</module>
         <module>08-spring-cloud-hystrix-order-8100</module>
+        <module>08-spring-cloud-hystrix-dashboard-8200</module>
     </modules>
 
     <!-- 统一管理jar包版本 -->

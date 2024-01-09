@@ -2,6 +2,8 @@ package cn.wickson.cloud.hystrix.order.feign;
 
 import cn.wickson.cloud.common.enums.ResultCodeEnum;
 import cn.wickson.cloud.common.utils.ResultUtil;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.springframework.stereotype.Component;
 
 /**

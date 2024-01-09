@@ -1,7 +1,10 @@
 package cn.wickson.cloud.hystrix.order.controller;
 
+import cn.wickson.cloud.common.enums.ResultCodeEnum;
 import cn.wickson.cloud.common.utils.ResultUtil;
 import cn.wickson.cloud.hystrix.order.feign.IPaymentHystrixService;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;

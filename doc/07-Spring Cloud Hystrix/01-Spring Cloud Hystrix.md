@@ -15,16 +15,16 @@
 
 **优点**
 
-* **容错性强：** Hystrix 提供了服务降级、熔断和限流等机制，可以防止故障在整个系统中扩散，保证系统的稳定性和可用性。
-* **提高系统可靠性：** 它能够在依赖服务不可用时提供备用方案，确保系统的基本功能可以继续运行。
-* **监控和度量：** Hystrix 提供了丰富的监控功能，可以实时监控依赖服务的调用情况和性能指标，帮助进行故障排查和性能优化。
+1. **容错性强：** Hystrix 提供了服务降级、熔断和限流等机制，可以防止故障在整个系统中扩散，保证系统的稳定性和可用性。
+2. **提高系统可靠性：** 它能够在依赖服务不可用时提供备用方案，确保系统的基本功能可以继续运行。
+3. **监控和度量：** Hystrix 提供了丰富的监控功能，可以实时监控依赖服务的调用情况和性能指标，帮助进行故障排查和性能优化。
 
 
 
 **缺点**
 
-* 目前 `Hystrix`已经停止更新了。
-* **复杂性增加：** 在项目中引入 Hystrix 可能会增加代码复杂性，需要对服务调用进行额外的封装和配置。
+1. 目前 `Hystrix`已经停止更新了。
+2. **复杂性增加：** 在项目中引入 Hystrix 可能会增加代码复杂性，需要对服务调用进行额外的封装和配置。
 
 
 
@@ -437,7 +437,208 @@
 
 ### 服务熔断
 
+> **服务熔断**：服务熔断是一种机制，用于防止故障在分布式系统中蔓延。类似于家庭中的保险丝，服务熔断器会在依赖服务出现故障时进行打开，停止对该服务的调用，避免持续的失败请求导致系统崩溃。
+
+* 实现需求
+
+  * 我们还是基于 支付微服务和订单服务的例子进行模拟
+
+* 实现思路
+
+  * 注册中心我们还是延用 Eureka 的集群版。
+  * Step-1：修改订单服务 `08-spring-cloud-hystrix-order-8100`
+  * Step-2：修改支付服务 `08-spring-cloud-hystrix-payment-8000`
+
+#### 修改订单服务
+
+* **Step-1：修改订单服务 `08-spring-cloud-hystrix-order-8100`**
+
+  * 新增控制类
+
+  ```java
+      @GetMapping("/getPaymentCircuitBreaker/{id}")
+      public ResultUtil getPaymentCircuitBreaker(@PathVariable("id") Long id) {
+          return paymentHystrixService.paymentCircuitBreaker(id);
+      }
+  ```
+
+  * 新增 Feign 调用
+
+  ```java
+      /**
+       * 服务熔断
+       *
+       * @return
+       */
+      @GetMapping("/payment/hystrix/paymentCircuitBreaker/{id}")
+      public ResultUtil paymentCircuitBreaker(@PathVariable("id") Long id);
+  ```
+
+#### 修改支付服务
+
+* **Step-2：修改支付服务 `08-spring-cloud-hystrix-payment-8000`**
+
+  * 新增控制类
+
+  ```java
+      @HystrixCommand(fallbackMethod = "paymentCircuitBreakerFallback",
+              commandProperties = {
+                      @HystrixProperty(name = "circuitBreaker.enabled", value = "true"), //是否开启断路器
+                      @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"), //请求次数
+                      @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000"), //时间范围
+                      @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "60"), //失败率达到多少后熔断
+              })
+      @GetMapping("/hystrix/paymentCircuitBreaker/{id}")
+      public ResultUtil paymentCircuitBreaker(@PathVariable("id") Long id) {
+          return paymentService.paymentCircuitBreaker(id);
+      }
+  
+      public ResultUtil paymentCircuitBreakerFallback(@PathVariable("id") Long id) {
+          return ResultUtil.failure(ResultCodeEnum.SYSTEM_ERROR, "Fallback: Payment Timeout. Please try again later.");
+      }
+  
+  ```
+
+  * 新增业务类
+
+  ```java
+      @Override
+      public ResultUtil paymentCircuitBreaker(final Long id) {
+          if (id < 0) {
+              throw UserOperationException.getInstance(ResultCodeEnum.PARAM_IS_INVALID);
+          }
+          String serialNumber = IdUtil.simpleUUID();
+          return ResultUtil.success("ThreadPool：" + Thread.currentThread().getName() + ", serialNumber：" + serialNumber);
+      }
+  ```
+
+#### 单元测试
+
+<img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401092115331.gif" alt="动画" style="zoom:100%;float:left" />
 
 
 
+#### 熔断的状态
 
+<img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401092126419.png" alt="image-20240109212631381" style="zoom:80%;float:left" />
+
+| 状态               | 含义                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| 熔断打开 OPEN      | 请求到达后，不再执行业务逻辑，内部设置时钟，值为平均故障处理时间 熔断打开状态持续到该时钟设定值后，进入熔断半开状态 |
+| 熔断关闭 CLOSED    | 熔断关闭，不对微服务进行熔断                                 |
+| 熔断半开 HALF-OPEN | 部分请求执行业务逻辑，尝试恢复微服务，如果请求成功且符合规则，则关闭熔断 |
+
+
+
+## `Hystrix` 服务监控
+
+* `Hystrix`监控中心：`Hystrix` 提供的一套可视化系统 `Hystrix-Dashboard` ，可以非常友好的看到当前环境中服务运行的状态。
+
+* 实现思路
+
+  1. Step-1：创建服务监控 `08-spring-cloud-hystrix-dashboard-8200`
+  2. Step-2：导入 `pom.xml` 依赖
+  3. Step-3：修改 `application.properties` 文件
+  4. Step-4：创建主启动类
+
+* 代码截图
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401092206973.png" alt="image-20240109220601949" style="zoom:100%;float:left" />
+
+### 创建 `DashBoard `
+
+* **Step-1：创建服务监控 `08-spring-cloud-hystrix-dashboard-8200`**
+
+* **Step-2：导入 `pom.xml` 依赖**
+
+  ```xml
+      <dependencies>
+          <!-- 引入公共依赖包 -->
+          <dependency>
+              <groupId>cn.wickson.cloud</groupId>
+              <artifactId>01-spring-cloud-common</artifactId>
+              <version>1.0-SNAPSHOT</version>
+          </dependency>
+  
+          <!-- 服务注册中心的客户端端 eureka-client -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+          </dependency>
+  
+          <!-- 熔断限流 hystrix -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+          </dependency>
+      </dependencies>
+  ```
+
+* **Step-3：修改 `application.properties` 文件**
+
+  ```properties
+  # 服务端口
+  server.port=8200
+  # 应用名称
+  spring.application.name=spring-cloud-hystrix-dashboard
+  ```
+
+* **Step-4：创建主启动类**
+
+  ```java
+  @EnableHystrixDashboard
+  @SpringBootApplication(scanBasePackages = "cn.wickson.cloud")
+  public class SpringCloudHystrixDashboardApplication {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(SpringCloudHystrixDashboardApplication.class, args);
+      }
+  
+  }
+  ```
+
+* http://localhost:8200/hystrix
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401092208943.png" alt="image-20240109220847895" style="zoom:100%;float:left" />
+
+### 启动支付服务
+
+* 在主启动类中添加如下代码
+
+```java
+    /**
+     * 此配置是为了服务监控而配置，与服务容错本身无观，springCloud 升级之后的坑
+     * ServletRegistrationBean因为springboot的默认路径不是/hystrix.stream
+     * 只要在自己的项目中配置上下面的servlet即可
+     * @return
+     */
+    @Bean
+    public ServletRegistrationBean getServlet(){
+        HystrixMetricsStreamServlet streamServlet = new HystrixMetricsStreamServlet();
+        ServletRegistrationBean<HystrixMetricsStreamServlet> registrationBean = new ServletRegistrationBean<>(streamServlet);
+        registrationBean.setLoadOnStartup(1);
+        registrationBean.addUrlMappings("/hystrix.stream");
+        registrationBean.setName("HystrixMetricsStreamServlet");
+        return registrationBean;
+    }
+```
+
+* 访问：http://localhost:8000/payment/hystrix/paymentCircuitBreaker/1 制造部分流量
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401092258848.png" alt="image-20240109225822823" style="zoom:100%;float:left" />
+
+* 访问：http://localhost:8200/hystrix 
+
+  ![image-20240109225930136](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401092259178.png)
+
+  ![image-20240109225953581](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401092259616.png)
+
+
+
+### `DashBoard` 图解
+
+* 实心圆
+  * 它通过颜色的变化代表了实例的健康程度，它的健康度从绿色<黄色<橙色<红色递减。
+  * 该实心圆除了颜色的变化之外，它的大小也会根据实例的请求流量发生变化，流量越大该实心圆就越大。所以通过该实心圆的展示，就可以在大量的实例中快速的发现故障实例和高压力实例
+
+![image-20201017162830940](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401092301240.png)

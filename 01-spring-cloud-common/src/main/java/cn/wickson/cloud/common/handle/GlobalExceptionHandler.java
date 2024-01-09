@@ -56,8 +56,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserOperationException.class)
     public ResultUtil handleUserOperationException(UserOperationException e, HttpServletRequest request) {
         log.error("requestUrl：{}，用户操作异常{code={}，message={}}", request.getRequestURI(), e.getCode().getCode(),
-                e.getDescription(), e);
-        return ResultUtil.failure(e.getCode(), e.getDescription());
+                e.getDescription());
+        return ResultUtil.failure(e.getCode());
     }
 
     /**

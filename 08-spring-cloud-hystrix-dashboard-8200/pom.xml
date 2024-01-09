@@ -9,7 +9,7 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>08-spring-cloud-hystrix-payment-8000</artifactId>
+    <artifactId>08-spring-cloud-hystrix-dashboard-8200</artifactId>
 
     <dependencies>
         <!-- 引入公共依赖包 -->
@@ -17,18 +17,6 @@
             <groupId>cn.wickson.cloud</groupId>
             <artifactId>01-spring-cloud-common</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <!--监控-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!-- 服务注册中心的客户端端 eureka-client -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
         <!-- 服务注册中心的客户端端 eureka-client -->
@@ -42,7 +30,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
         </dependency>
-
     </dependencies>
 
 </project>

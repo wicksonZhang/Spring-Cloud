@@ -1,10 +1,10 @@
-package cn.wickson.cloud.hystrix.payment.service.impl;
+package cn.wickson.cloud.hystrix.dashboard.service.impl;
 
 import cn.hutool.core.util.IdUtil;
 import cn.wickson.cloud.common.enums.ResultCodeEnum;
 import cn.wickson.cloud.common.exception.UserOperationException;
 import cn.wickson.cloud.common.utils.ResultUtil;
-import cn.wickson.cloud.hystrix.payment.service.IPaymentService;
+import cn.wickson.cloud.hystrix.dashboard.service.IPaymentService;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;

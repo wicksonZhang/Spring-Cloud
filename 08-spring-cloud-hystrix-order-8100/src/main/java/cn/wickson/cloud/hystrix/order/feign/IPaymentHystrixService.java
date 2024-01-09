@@ -40,21 +40,7 @@ public interface IPaymentHystrixService {
      *
      * @return
      */
-//    @HystrixCommand(fallbackMethod =
-//            "paymentCircuitBreakerFallback", commandProperties = {
-//            @HystrixProperty(name = "circuitBreaker.enabled", value = "true"), //是否开启断路器
-//            @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "10"), //请求次数
-//            @HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "10000"), //时间范围
-//            @HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "60"), //失败率达到多少后跳闸
-//    })
     @GetMapping("/payment/hystrix/paymentCircuitBreaker/{id}")
     public ResultUtil paymentCircuitBreaker(@PathVariable("id") Long id);
-
-    /**
-     * 降级处理方法，与 @HystrixCommand 中指定的 fallbackMethod 名称一致
-     */
-    default ResultUtil paymentCircuitBreakerFallback(){
-        return ResultUtil.failure(ResultCodeEnum.SYSTEM_ERROR, "Fallback: Payment Timeout. Please try again later.");
-    }
 
 }
