@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -38,6 +39,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 不支持请求方法异常处理
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResultUtil handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
+        log.error("requestUrl：{}，用户操作异常", request.getRequestURI(), e);
+        String errorMessage = String.format("请求方法无效，不支持%s请求", request.getMethod());
+        return ResultUtil.failure(ResultCodeEnum.USER_REQUEST_METHOD_INVALID, errorMessage);
+    }
+
+    /**
      * 自定义用户操作异常处理
      */
     @ResponseStatus(HttpStatus.OK)
@@ -47,7 +59,6 @@ public class GlobalExceptionHandler {
                 e.getDescription(), e);
         return ResultUtil.failure(e.getCode(), e.getDescription());
     }
-
 
     /**
      * 请求参数校验异常处理方式一

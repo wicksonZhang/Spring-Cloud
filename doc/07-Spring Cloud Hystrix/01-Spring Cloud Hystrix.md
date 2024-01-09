@@ -48,7 +48,394 @@
 
 ## Spring Cloud Hystrix 具体实现
 
+### 服务降级
 
+* 实现需求
+
+  * 我们还是基于 支付微服务和订单服务的例子进行模拟
+
+* 实现思路
+
+  * 注册中心我们还是延用 Eureka 的集群版。
+  * Step-1：创建订单服务 `08-spring-cloud-hystrix-order-8100`
+  * Step-2：创建支付服务 `08-spring-cloud-hystrix-payment-8000`
+
+* 代码结构
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401091439174.png" alt="image-20240109143939131" style="zoom:100%;float:left" />
+
+#### 创建支付服务
+
+* 创建支付服务： `08-spring-cloud-hystrix-payment-8000`
+
+* 实现步骤
+
+  1. Step-1：导入 `pom.xml` 依赖
+  2. Step-2：修改 `application.properties` 文件
+  3. Step-3：创建主启动类
+  4. Step-4：编写业务类
+  5. Step-5：编写控制类
+
+* **Step-1：导入 `pom.xml` 依赖**
+
+  ```xml
+      <dependencies>
+          <!-- 引入公共依赖包 -->
+          <dependency>
+              <groupId>cn.wickson.cloud</groupId>
+              <artifactId>01-spring-cloud-common</artifactId>
+              <version>1.0-SNAPSHOT</version>
+          </dependency>
+  
+          <!-- 服务注册中心的客户端端 eureka-client -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+          </dependency>
+  
+          <!-- 熔断限流 hystrix -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+          </dependency>
+  ```
+
+* **Step-2：修改 `application.properties` 文件**
+
+  ```properties
+  # 服务端口
+  server.port=8000
+  # 应用名称
+  spring.application.name=spring-cloud-hystrix-payment
+  # 是否向注册中心注册自己
+  eureka.client.register-with-eureka=true
+  # 表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+  eureka.client.fetch-registry=true
+  # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+  eureka.client.serviceUrl.defaultZone=http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+  # 设置Eureka服务实例的唯一标识为 spring-cloud-cluster-eureka-payment:3600
+  eureka.instance.instance-id=spring-cloud-hystrix-payment:8000
+  # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+  eureka.instance.prefer-ip-address=true
+  ```
+
+* **Step-3：创建主启动类**
+
+  ```java
+  /**
+   * hystrix 启动类
+   *
+   * @author ZhangZiHeng
+   * @date 2024-01-08
+   */
+  @EnableEurekaClient
+  @SpringBootApplication
+  public class SpringCloudHystrixPaymentApplication {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(SpringCloudHystrixPaymentApplication.class, args);
+      }
+  
+  }
+  ```
+
+* **Step-4：编写业务类**
+
+  * `PaymentServiceImpl.java`
+
+  ```java
+  /**
+   * 支付服务-应用服务实现类
+   *
+   * @author ZhangZiHeng
+   * @date 2024-01-08
+   */
+  @Service
+  public class PaymentServiceImpl implements IPaymentService {
+  
+      /**
+       * 成功
+       *
+       * @return String
+       */
+      @Override
+      public ResultUtil paymentBySuccess() {
+          return ResultUtil.success("ThreadPool：" + Thread.currentThread().getName() + ", payment service success");
+      }
+  
+      /**
+       * 连接超时
+       *
+       * @return String
+       */
+      @Override
+      public ResultUtil paymentByTimeOut() {
+          int timeNumber = 3;
+          try {
+              // 模拟网络延迟
+              TimeUnit.SECONDS.sleep(timeNumber);
+          } catch (Exception exception) {
+              exception.printStackTrace();
+          }
+          return ResultUtil.success("ThreadPool：" + Thread.currentThread().getName() + ", payment service timeout：" + timeNumber);
+      }
+  
+  }
+  ```
+
+* **Step-5：编写控制类**
+
+  ```java
+  /**
+   * 支付微服务-控制类
+   *
+   * @author ZhangZiHeng
+   * @date 2024-01-08
+   */
+  @Slf4j
+  @Validated
+  @RestController
+  @RequestMapping("/payment")
+  public class PaymentController {
+  
+      @Resource
+      private IPaymentService paymentService;
+  
+      @Value("${server.port}")
+      private Integer serverPort;
+  
+      @GetMapping("/hystrix/success")
+      public ResultUtil paymentSuccess() {
+          return paymentService.paymentBySuccess();
+      }
+  
+      @GetMapping("/hystrix/timeOut")
+      public ResultUtil paymentTimeOut() {
+          return paymentService.paymentByTimeOut();
+      }
+  
+  }
+  ```
+
+#### 创建订单服务
+
+> 订单服务会主动进行调用支付服务，所以我们将 `服务降级、服务熔断、服务隔离` 写在订单服务中。两端都可以写，我们目前写在调用方（订单服务）中。
+
+* 创建订单服务： `08-spring-cloud-hystrix-order-8100`
+
+* 实现步骤
+
+  1. Step-1：导入 `pom.xml` 依赖
+  2. Step-2：修改 `application.properties` 文件
+  3. Step-3：创建主启动类
+  4. Step-4：编写业务类
+  5. Step-5：编写控制类
+
+* **Step-1：导入 `pom.xml` 依赖**
+
+  ```xml
+      <dependencies>
+          <!-- 公共依赖服务 -->
+          <dependency>
+              <groupId>cn.wickson.cloud</groupId>
+              <artifactId>01-spring-cloud-common</artifactId>
+              <version>1.0-SNAPSHOT</version>
+          </dependency>
+  
+          <!-- 服务注册中心的客户端端 eureka-client -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+          </dependency>
+  
+          <!-- 服务调用依赖包：OpenFeign -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-openfeign</artifactId>
+          </dependency>
+  
+          <!-- 熔断限流 hystrix -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+          </dependency>
+      </dependencies>
+  ```
+
+* **Step-2：修改 `application.properties` 文件**
+
+  ```properties
+  # 服务端口
+  server.port=8100
+  # 应用名称
+  spring.application.name=spring-cloud-hystrix-order
+  
+  # ============================= Eureka =================================
+  # 是否向注册中心注册自己
+  eureka.client.register-with-eureka=true
+  # 表示自己就是注册中心，职责是维护服务实例，并不需要去检索服务
+  eureka.client.fetch-registry=true
+  # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+  eureka.client.serviceUrl.defaultZone=http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+  # 设置Eureka服务实例的唯一标识为 spring-cloud-cluster-eureka-payment:3600
+  eureka.instance.instance-id=spring-cloud-hystrix-order:8100
+  # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+  eureka.instance.prefer-ip-address=true
+  # ============================= Eureka =================================
+  
+  # ============================= open Feign 配置start =============================
+  # 建立连接所有的时间，适用于网络状况正常的情况，两端建立所花费时间
+  feign.client.config.default.connect-timeout=5000
+  # 建立连接后服务端读取可用资源所有的时间，默认是 1S
+  feign.client.config.default.read-timeout=5000
+  # =============================  open Feign 配置end  =============================
+  
+  # ============================= hystrix =================================
+  # 配置 hystrix 连接超时
+  feign.hystrix.enabled=true
+  # https://blog.csdn.net/tszxlzc/article/details/106625387
+  # 目前设置为5 S，默认是 1S（default_executionTimeoutInMilliseconds = 1000）
+  hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds=5000
+  # ============================= hystrix =================================
+  ```
+
+* **Step-3：创建主启动类**
+
+  ```java
+  /**
+   * 订单服务-启动类
+   *
+   * @author ZhangZiHeng
+   * @date 2024-01-08
+   */
+  @EnableHystrix // 启用 Hystrix 断路器
+  @EnableEurekaClient // 启用 Eureka 客户端
+  @EnableFeignClients // 启用 Feign 客户端
+  @SpringBootApplication
+  public class SpringCloudHystrixOrderApplication {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(SpringCloudHystrixOrderApplication.class, args);
+      }
+  
+  }
+  ```
+
+* **Step-4：OpenFeign 调用类**
+
+  * `IPaymentHystrixService.java`
+
+  ```java
+  /**
+   * Feign远程调用接口支付接口
+   *
+   * @author ZhangZiHeng
+   * @date 2024-01-09
+   */
+  @Component
+  // value 声明一个 Feign 客户端，value 指定了要调用的服务名为 "SPRING-CLOUD-HYSTRIX-PAYMENT"，
+  // fallback 指定了当调用失败时的降级处理类为 PaymentFallbackService.class
+  @FeignClient(value = "SPRING-CLOUD-HYSTRIX-PAYMENT", fallback = PaymentFallbackService.class)
+  public interface IPaymentHystrixService {
+  
+      /**
+       * 成功
+       *
+       * @return String
+       */
+      @GetMapping("/payment/hystrix/success")
+      public ResultUtil paymentBySuccess();
+  
+      /**
+       * 连接超时
+       *
+       * @return String
+       */
+      @GetMapping("/payment/hystrix/timeOut")
+      public ResultUtil paymentByTimeOut();
+  
+  }
+  ```
+
+  * `PaymentFallbackService.java`
+
+  ```java
+  @Component
+  public class PaymentFallbackService implements IPaymentHystrixService {
+  
+      @Override
+      public ResultUtil paymentBySuccess() {
+          return ResultUtil.failure(ResultCodeEnum.SYSTEM_ERROR);
+      }
+  
+      @Override
+      public ResultUtil paymentByTimeOut() {
+          return ResultUtil.failure(ResultCodeEnum.SYSTEM_ERROR);
+      }
+  
+  }
+  ```
+
+* **Step-5：编写控制类**
+
+  ```java
+  /**
+   * 订单服务-控制类
+   *
+   * @author ZhangZiHeng
+   * @date 2024-01-08
+   */
+  @Slf4j
+  @Validated
+  @RestController
+  @RequestMapping("/order")
+  public class OrderController {
+  
+      @Resource
+      private IPaymentHystrixService paymentHystrixService;
+  
+      @GetMapping("/getPaymentSuccess")
+      public ResultUtil getPaymentSuccess() {
+          return paymentHystrixService.paymentBySuccess();
+      }
+  
+      @GetMapping("/getPaymentTimeOut")
+      public ResultUtil getPaymentTimeOut() {
+          return paymentHystrixService.paymentByTimeOut();
+      }
+  
+  }
+  ```
+
+* **注意：我们上面的操作直接做的全局限流操作，其实可以对单个方法进行限流。**
+
+  ```java
+  @GetMapping("/getPaymentTimeOut")
+  @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod",commandProperties = {
+      @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds",value = "5000")
+  })
+  public ResultUtil getPaymentTimeOut() {
+      return paymentHystrixService.paymentByTimeOut();
+  }
+  
+  public ResultUtil paymentTimeOutFallbackMethod(){
+      return ResultUtil.failure(ResultCodeEnum.SYSTEM_ERROR);
+  }
+  ```
+
+#### 单元测试
+
+* 正常情况调用
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401091546155.gif" alt="动画" style="zoom:100%;float:left" />
+
+* 我们将支付服务服务进行关闭，然后调用
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401091548590.gif" alt="动画" style="zoom:100%;float:left;" />
+
+
+
+### 服务熔断
 
 
 

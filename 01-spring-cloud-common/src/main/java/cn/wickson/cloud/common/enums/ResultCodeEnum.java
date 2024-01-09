@@ -33,6 +33,8 @@ public enum ResultCodeEnum {
     PARAM_VALIDATED_FAILURE(1006, "参数校验失败"),
 
     /* 系统错误码：9001-9999 */
+    SYSTEM_LACK_OF_CODE_ERROR(9997, "缺少代码错误"),
+    USER_REQUEST_METHOD_INVALID(9998, "请求方法无效"),
     SYSTEM_ERROR(9999, "系统繁忙，请稍后重试...");
 
     /**

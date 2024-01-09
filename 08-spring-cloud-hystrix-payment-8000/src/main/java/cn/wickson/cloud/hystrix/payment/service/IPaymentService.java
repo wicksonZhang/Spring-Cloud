@@ -1,5 +1,7 @@
 package cn.wickson.cloud.hystrix.payment.service;
 
+import cn.wickson.cloud.common.utils.ResultUtil;
+
 /**
  * 支付服务-应用服务类
  *
@@ -13,13 +15,20 @@ public interface IPaymentService {
      *
      * @return String
      */
-    String paymentBySuccess();
+    ResultUtil paymentBySuccess();
 
     /**
      * 连接超时
      *
      * @return String
      */
-    String paymentByTimeOut();
+    ResultUtil paymentByTimeOut();
 
+    /**
+     * 服务熔断
+     *
+     * @param id
+     * @return
+     */
+    ResultUtil paymentCircuitBreaker(Long id);
 }

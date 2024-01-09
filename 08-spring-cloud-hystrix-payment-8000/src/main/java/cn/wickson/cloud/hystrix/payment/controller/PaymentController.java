@@ -1,10 +1,12 @@
 package cn.wickson.cloud.hystrix.payment.controller;
 
+import cn.wickson.cloud.common.utils.ResultUtil;
 import cn.wickson.cloud.hystrix.payment.service.IPaymentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,18 +27,19 @@ public class PaymentController {
     @Resource
     private IPaymentService paymentService;
 
-    @Value("${server.port}")
-    private Integer serverPort;
-
     @GetMapping("/hystrix/success")
-    public String paymentSuccess() {
+    public ResultUtil paymentSuccess() {
         return paymentService.paymentBySuccess();
     }
 
     @GetMapping("/hystrix/timeOut")
-    public String paymentTimeOut() {
+    public ResultUtil paymentTimeOut() {
         return paymentService.paymentByTimeOut();
     }
 
+    @GetMapping("/hystrix/paymentCircuitBreaker/{id}")
+    public ResultUtil paymentCircuitBreaker(@PathVariable("id") Long id) {
+        return paymentService.paymentCircuitBreaker(id);
+    }
 
 }

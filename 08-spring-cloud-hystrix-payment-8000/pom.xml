@@ -7,8 +7,8 @@
         <groupId>cn.wickson.cloud</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
+    <modelVersion>4.0.0</modelVersion>
     <artifactId>08-spring-cloud-hystrix-payment-8000</artifactId>
 
     <dependencies>

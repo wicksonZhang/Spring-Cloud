@@ -11,7 +11,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
  * @date 2024-01-08
  */
 @EnableEurekaClient
-@SpringBootApplication(scanBasePackages = "cn.wickson.cloud")
+@SpringBootApplication
 public class SpringCloudHystrixPaymentApplication {
 
     public static void main(String[] args) {
