@@ -1,0 +1,42 @@
+# 服务端口
+server:
+  port: 9000
+# 应用名称
+spring:
+  application:
+    name: spring-cloud-gateway-server
+  #--------------------------------- Gateway 配置 start ---------------------------------
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+      routes:
+        # 订单服务
+        - id: order-route # 路由的Id，没有固定的规则，但要求唯一
+          uri: lb://SPRING-CLOUD-CLUSTER-EUREKA-ORDER # 替换为你的服务ID，lb:// 表示使用负载均衡
+          predicates: # 断言，路径相匹配的进行路由
+            - Path=/order/**
+
+        # 支付服务
+        - id: payment-route # 路由的Id，没有固定的规则，但要求唯一
+          uri: lb://SPRING-CLOUD-CLUSTER-EUREKA-PAYMENT # 替换为你的服务ID，lb:// 表示使用负载均衡
+          predicates: # 断言，路径相匹配的进行路由
+            - Path=/payment/**
+  #--------------------------------- Gateway 配置  end  ---------------------------------
+
+#--------------------------------- Eureka 配置 start ---------------------------------
+eureka:
+  instance:
+    hostname: spring-cloud-gateway-server
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-cluster-eureka-payment:3600
+    instance-id: spring-cloud-gateway-server:9000
+    # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+    prefer-ip-address: true
+  client:
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+      defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+#--------------------------------- Eureka 配置  end  ---------------------------------

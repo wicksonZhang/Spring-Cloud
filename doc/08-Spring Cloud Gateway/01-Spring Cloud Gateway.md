@@ -106,3 +106,183 @@ Spring Cloud Gateway：是基于 `Spring Boot2、WebFlux` 和 `Reactor` 的 `Api
 
 
 
+## Gateway 具体操作
+
+* 实现需求
+
+  * 我们本章节的 `Gateway` 实现，还是基于我们 `Eureka` 的集群案例。
+  * 我们首先将请求到网关，网关进行动态路由到不同的服务当中。
+
+* 实现思路
+
+  * Step-1：创建网关服务 `09-spring-cloud-gateway-server-9000`
+
+* 代码结构
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401121303763.png" alt="image-20240112130300730" style="zoom:100%;float:left" />
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401121303356.png" alt="image-20240112130349335" style="zoom:100%;float:left" />
+
+* **实现步骤**
+
+1. Step-1：导入 `pom.xml` 依赖
+2. Step-2：修改 `application.yml` 文件
+3. Step-3：创建主启动类
+
+* **Step-1：导入 `pom.xml` 依赖**
+
+  * 注意：不需要导入 web 服务
+
+  ```xml
+      <dependencies>
+          <!-- 微服务网关依赖 -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-gateway</artifactId>
+          </dependency>
+  
+          <!-- 服务注册中心的客户端 eureka-client -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+          </dependency>
+  
+      </dependencies>
+  ```
+
+* **Step-2：修改 `application.properties` 文件**
+
+  * **Route（路由）：**路由是构建网关的基本模块，它由ID，目标URI，一系列的断言和过滤器组成，如果断言为true则匹配该路由。
+  * **Predicate（断言）：**参考的是 `Java8` 的 `java.util.function.Predicate` 开发人员可以匹配HTTP请求中的所有内容(例如请求头或请求参数)，如果请求与断言相匹配则进行路由
+  * **Filter（过滤）：**指的是 `Spring` 框架中 `GatewayFilter` 的实例，使用过滤器，可以在请求被路由前或者之后对请求进行修改。
+
+  ```yaml
+  # 服务端口
+  server:
+    port: 9000
+  # 应用名称
+  spring:
+    application:
+      name: spring-cloud-gateway-server
+    #--------------------------------- Gateway 配置 start ---------------------------------
+    cloud:
+      gateway:
+        discovery:
+          locator:
+            enabled: true #开启从注册中心动态创建路由的功能，利用微服务名进行路由
+        routes:
+          # 订单服务
+          - id: order-route # 路由的Id，没有固定的规则，但要求唯一
+            uri: lb://SPRING-CLOUD-CLUSTER-EUREKA-ORDER # 替换为你的服务ID，lb:// 表示使用负载均衡
+            predicates: # 断言，路径相匹配的进行路由
+              - Path=/order/**
+  
+          # 支付服务
+          - id: payment-route # 路由的Id，没有固定的规则，但要求唯一
+            uri: lb://SPRING-CLOUD-CLUSTER-EUREKA-PAYMENT # 替换为你的服务ID，lb:// 表示使用负载均衡
+            predicates: # 断言，路径相匹配的进行路由
+              - Path=/payment/**
+    #--------------------------------- Gateway 配置  end  ---------------------------------
+  
+  #--------------------------------- Eureka 配置 start ---------------------------------
+  eureka:
+    instance:
+      hostname: spring-cloud-gateway-server
+      # 设置Eureka服务实例的唯一标识为 spring-cloud-cluster-eureka-payment:3600
+      instance-id: spring-cloud-gateway-server:9000
+      # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+      prefer-ip-address: true
+    client:
+      service-url:
+        register-with-eureka: true
+        fetch-registry: true
+        # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+        defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+  #--------------------------------- Eureka 配置  end  ---------------------------------
+  
+  ```
+
+* **Step-3：创建主启动类**
+
+  ```java
+  /**
+   * 网关-启动类
+   *
+   * @author ZhangZiHeng
+   * @date 2024-01-12
+   */
+  @EnableEurekaClient
+  @SpringBootApplication(scanBasePackages = "cn.wickson.cloud")
+  public class SpringCloudGatewayApplication {
+  
+      public static void main(String[] args) {
+          SpringApplication.run(SpringCloudGatewayApplication.class, args);
+      }
+  
+  }
+  ```
+
+* **Step-4：测试**
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401121314267.gif" alt="动画" style="zoom:100%;float:left" />
+
+
+
+## Gateway 之 Predicate（断言）
+
+* 关于 `Predicat` 的介绍：https://cloud.spring.io/spring-cloud-gateway/reference/html/#gateway-request-predicates-factories
+
+* 例如，我们需要在 2017 年 1 月 20 日 17:42 之后的请求进行匹配。
+
+  ```yaml
+  spring:
+    cloud:
+      gateway:
+        routes:
+        - id: after_route
+          uri: https://example.org
+          predicates:
+          - After=2017-01-20T17:42:47.789-07:00[America/Denver]
+  ```
+
+  
+
+## Gateway 之 Filter（过滤）
+
+* 关于 `Filter` 的介绍：https://cloud.spring.io/spring-cloud-gateway/reference/html/#global-filters
+
+* 我们自定义 `Filter` 实现过滤用户登录认证
+
+  ```java
+  /**
+   * 用户认证-过滤器类
+   */
+  @Component
+  public class UserAuthenticationFilter implements GlobalFilter, Ordered {
+  
+      @Override
+      public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+          ServerHttpRequest request = exchange.getRequest();
+          ServerHttpResponse response = exchange.getResponse();
+          String username = request.getQueryParams().getFirst("username");
+          if (username == null) {
+              response.setStatusCode(HttpStatus.UNAUTHORIZED);
+              response.getHeaders().add("Content-Type", "application/json;charset=UTF-8");
+              ResultUtil result = ResultUtil.failure(ResultCodeEnum.TOKEN_ISNULL_ERROR);
+              DataBuffer dataBuffer = response.bufferFactory().wrap(JSONUtil.toJsonStr(result).getBytes(StandardCharsets.UTF_8));
+              return response.writeWith(Flux.just(dataBuffer));
+          }
+          return chain.filter(exchange);
+      }
+  
+      @Override
+      public int getOrder() {
+          return -1;
+      }
+  }
+  ```
+
+  * 测试
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401121344961.gif" alt="动画" style="zoom:100%;float:left" />
+

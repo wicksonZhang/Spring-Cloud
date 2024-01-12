@@ -1,5 +1,6 @@
 package cn.wickson.cloud.cluster.eureka.order.controller;
 
+import cn.wickson.cloud.common.model.dto.PaymentRespDTO;
 import cn.wickson.cloud.common.model.entity.Payment;
 import cn.wickson.cloud.common.utils.ResultUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +45,8 @@ public class OrderController {
      * @return ResultUtil
      */
     @GetMapping("/getPayment/{id}")
-    public ResultUtil getPayment(@PathVariable("id") Long id) {
-        return restTemplate.getForObject(PAYMENT_URL + "/payment/getById/" + id, ResultUtil.class);
+    public PaymentRespDTO getPayment(@PathVariable("id") Long id) {
+        return restTemplate.getForObject(PAYMENT_URL + "/payment/getById/" + id, PaymentRespDTO.class);
     }
 
 }

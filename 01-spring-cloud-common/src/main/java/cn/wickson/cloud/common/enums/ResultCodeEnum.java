@@ -32,6 +32,11 @@ public enum ResultCodeEnum {
     PARAM_REQUEST_DATA_FORMAT_INVALID(1005, "请求参数的数据格式错误"),
     PARAM_VALIDATED_FAILURE(1006, "参数校验失败"),
 
+    /* 三方接口调用错误码：8001-8500 */
+    TOKEN_ISNULL_ERROR(7001, "用户未登录，请先登录"),
+    TOKEN_INVALID_ERROR(7002, "非法的token"),
+    TOKEN_EXPIRED_ERROR(7003, "已失效的token"),
+
     /* 系统错误码：9001-9999 */
     SYSTEM_LACK_OF_CODE_ERROR(9997, "缺少代码错误"),
     USER_REQUEST_METHOD_INVALID(9998, "请求方法无效"),
