@@ -46,3 +46,44 @@
 
 
 ## Spring Cloud Config 具体操作
+
+> 如果出现端口被占用请查看博文：https://blog.csdn.net/weixin_46709007/article/details/125140872
+
+* 实现需求
+
+  * 我们将
+
+* 实现思路
+
+  * Step-1：创建网关服务 `09-spring-cloud-gateway-server-9000`
+
+* 代码结构
+
+
+
+### 服务端操作
+
+
+
+
+
+
+
+### 客户端操作
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

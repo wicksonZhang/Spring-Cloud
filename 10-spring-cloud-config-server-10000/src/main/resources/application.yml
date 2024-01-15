@@ -9,12 +9,12 @@ spring:
     config:
       server:
         git:
-          uri: git@github.com:wicksonZhang/Spring-Cloud.git
+          uri: https://github.com/wicksonZhang/Spring-Cloud.git
           # 搜索目录
           search-paths:
             - 10-spring-cloud-config
       # 读取分支
-      label: master
+      label: main
 
 
 #--------------------------------- Eureka 配置 start ---------------------------------
