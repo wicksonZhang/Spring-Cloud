@@ -51,39 +51,325 @@
 
 * 实现需求
 
-  * 我们将
+  * 首先，我们创建配置文件，将配置文件部署在 `github` 上。
+  * 然后，我们创建服务端操作，通过访问服务端读取在 `github` 上的配置文件。
+  * 最后，我们创建客户端操作，通过配置服务端读取配置文件。
 
 * 实现思路
 
-  * Step-1：创建网关服务 `09-spring-cloud-gateway-server-9000`
+  * Step-1：创建配置文件 `10-spring-cloud-config`
+  * Step-2：创建配置服务端 `10-spring-cloud-config-server-10000`
+  * Step-3：创建配置客户端 `10-spring-cloud-config-client-11000`
 
 * 代码结构
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401152040652.png" alt="image-20240115204041536" style="zoom:100%;float:left" />
+
+### 准备工作
+
+我们准备工作有如下两个操作
+
+1. 创建配置文件`10-spring-cloud-config` (`config-dev.yml、config-prod.yml、config-uat.yml`)
+2. 修改 `hosts` 映射文件
+3. 将配置文件 `10-spring-cloud-config` 上传至 `github`
+
+* **Step-1：创建配置文件`10-spring-cloud-config`**
+  * 其中以 `config-dev.yml` 配置文件为例，其他都是一样
+
+```yaml
+config:
+  info: "master branch, 10-spring-cloud-config/config-dev.yml version=1"
+```
+
+* **Step-2：修改 `hosts` 映射文件**
+
+```
+# Spring Cloud Config
+127.0.0.1 config10000.com
+```
+
+* **Step-3：将配置文件 `10-spring-cloud-config` 上传至 `github`**
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401152051723.png" alt="image-20240115205108695" style="zoom:100%;float:left" />
 
 
 
 ### 服务端操作
 
+**实现步骤**
+
+```tex
+1. Step-1：导入 `pom.xml` 依赖
+2. Step-2：修改 `application.yml` 文件
+3. Step-3：创建主启动类
+4. 测试
+```
+
+**Step-1：导入 `pom.xml` 依赖**
+
+```xml
+<dependencies>
+    <!-- 公共依赖 -->
+    <dependency>
+        <groupId>cn.wickson.cloud</groupId>
+        <artifactId>01-spring-cloud-common</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <exclusions>
+            <exclusion>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+
+    <!-- Spring Cloud Config 依赖 -->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-config-server</artifactId>
+    </dependency>
+
+    <!-- Spring Cloud netflix 服务-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
+</dependencies>
+```
+
+**Step-2：修改 `application.yml` 文件**
+
+```yaml
+# 服务端口
+server:
+  port: 10000
+# 应用名称
+spring:
+  application:
+    name: spring-cloud-config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/wicksonZhang/Spring-Cloud.git
+          # 搜索目录
+          search-paths:
+            - 10-spring-cloud-config
+      # 读取分支
+      label: main
+
+
+#--------------------------------- Eureka 配置 start ---------------------------------
+eureka:
+  instance:
+    hostname: spring-cloud-config-server
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-config-server:10000
+    instance-id: spring-cloud-config-server:10000
+    # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+    prefer-ip-address: true
+  client:
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+      defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+#--------------------------------- Eureka 配置  end  ---------------------------------
+```
+
+**Step-3：创建服务端主启动类**
+
+```java
+/**
+ * Spring Cloud Config 服务端-启动类
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-15
+ */
+@EnableEurekaClient
+@EnableConfigServer
+@SpringBootApplication(scanBasePackages = "cn.wickson.cloud")
+public class SpringCloudConfigServerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringCloudConfigServerApplication.class, args);
+    }
+
+}
+```
+
+**Step-4：测试**
+
+<img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401152058888.gif" alt="动画" style="zoom:100%;float:left" />
 
 
 
+**注意：我们这里可以配置一下读取规则**
+
+* 具体配置细节参考官网配置：[Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/#_quick_start)，我们选取如下配置
+
+```yaml
+# label: 分支（branch）
+# application: 服务名
+# profile: 环境（dev/test/prod）
+
+/{label}/{application}-{profile}.yml
+```
 
 
 
 ### 客户端操作
 
+**实现步骤**
+
+```
+1. Step-1：导入 `pom.xml` 依赖
+2. Step-2：修改 `application.yml` 文件
+3. Step-3：创建主启动类
+4. Step-4：创建控制类
+5. Step-5：测试
+```
+
+**Step-1：导入 `pom.xml` 依赖**
+
+```xml
+<dependencies>
+    <!-- 公共依赖 -->
+    <dependency>
+        <groupId>cn.wickson.cloud</groupId>
+        <artifactId>01-spring-cloud-common</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </dependency>
+
+    <!-- Spring Cloud Config 依赖 -->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-config-client</artifactId>
+    </dependency>
+
+    <!-- Spring Cloud netflix 服务-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
+</dependencies>
+```
+
+**Step-2：修改 `bootstrap.yml` 文件**
+
+* 注意：我们这次使用的配置文件是 `bootstrap.yml` , 因为 `bootstrap.yml` 的优先级比 `application.yml` 高
+
+```yaml
+# 服务端口
+server:
+  port: 11000
+# 应用名称
+spring:
+  application:
+    name: spring-cloud-config-client
+  cloud:
+    # 配置文件读取地址：http://config10000.com/main/config-dev.yml
+    # 配置文件读取规则：/main分支/配置文件名称+配置文件后缀.yml
+    config:
+      # 分支名称
+      label: main
+      # 配置文件名称
+      name: config
+      # 读取配置文件后缀
+      profile: dev
+      # 配置中心地址
+      uri: http://localhost:10000
+
+
+#--------------------------------- Eureka 配置 start ---------------------------------
+eureka:
+  instance:
+    hostname: spring-cloud-config-client
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-config-client:11000
+    instance-id: spring-cloud-config-client:11000
+    # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+    prefer-ip-address: true
+  client:
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+      defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+#--------------------------------- Eureka 配置  end  ---------------------------------
+
+#--------------------------------- config 客户端配置暴露监控端点 start ---------------------------------
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+#--------------------------------- config 客户端配置暴露监控端点 end   ---------------------------------
+```
+
+**Step-3：创建客户端主启动类**
+
+```java
+/**
+ * Spring Cloud Config 客户端-启动类
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-15
+ */
+@EnableEurekaClient
+@SpringBootApplication(scanBasePackages = "cn.wickson.cloud")
+public class SpringCloudConfigClientApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringCloudConfigClientApplication.class, args);
+    }
+
+}
+```
+
+**Step-4：创建控制类**
+
+```java
+/**
+ * 客户端控制类
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-15
+ */
+@Slf4j
+@Validated
+@RestController
+@RefreshScope
+@RequestMapping("/config-client")
+public class ConfigClientController {
+
+    @Value("${config.info}")
+    private String configInfo;
+
+    @GetMapping("/config-info")
+    public String getConfigInfo() {
+        return configInfo;
+    }
+
+}
+```
+
+**Step-5：测试**
+
+* 我们目前测试的是 `config-dev.yml`
+
+<img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401152122706.gif" alt="动画" style="float:left" />
 
 
 
+### 动态更新
 
+* 我们在客户端已经将动态更新配置好了，所以我们进行测试。
+* 注意：我们更新完 `github` 配置文件之后，需要手动激活客户端配置。
 
+```cmake
+C:\Users\wicks>curl -X POST "http://localhost:11000/actuator/refresh"
+["config.client.version","config.info"]
+C:\Users\wicks>
+```
 
-
-
-
-
-
-
-
-
+![动画](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401152159890.gif)
 
 

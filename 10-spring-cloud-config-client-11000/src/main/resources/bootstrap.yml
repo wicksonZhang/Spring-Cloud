@@ -18,7 +18,6 @@ spring:
       # 配置中心地址
       uri: http://localhost:10000
 
-
 #--------------------------------- Eureka 配置 start ---------------------------------
 eureka:
   instance:

@@ -8,6 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 客户端控制类
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-15
+ */
 @Slf4j
 @Validated
 @RestController
