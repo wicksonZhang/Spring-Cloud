@@ -1,5 +1,11 @@
 # Spring Cloud `OpenFeign`
 
+> 本章节的代码：https://github.com/wicksonZhang/Spring-Cloud
+>
+> 我们只需要聚焦在如下服务当中：
+>
+> * [07-spring-cloud-openfeign-order-7000](https://github.com/wicksonZhang/Spring-Cloud/tree/main/07-spring-cloud-openfeign-order-7000)
+
 ## 基本概念
 
 ### `OpenFeign` 是什么

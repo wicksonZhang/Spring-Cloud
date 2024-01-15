@@ -1,5 +1,13 @@
 # Spring Cloud `Hystrix`
 
+> 本章节的代码：https://github.com/wicksonZhang/Spring-Cloud
+>
+> 我们只需要聚焦在如下服务当中：
+>
+> * [08-spring-cloud-hystrix-dashboard-8200](https://github.com/wicksonZhang/Spring-Cloud/tree/main/08-spring-cloud-hystrix-dashboard-8200)
+> * [08-spring-cloud-hystrix-order-8100](https://github.com/wicksonZhang/Spring-Cloud/tree/main/08-spring-cloud-hystrix-order-8100)
+> * [08-spring-cloud-hystrix-payment-8000](https://github.com/wicksonZhang/Spring-Cloud/tree/main/08-spring-cloud-hystrix-payment-8000)
+
 ## 基本概念
 
 ### `Hystrix` 是什么
