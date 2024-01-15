@@ -34,6 +34,7 @@
         <module>08-spring-cloud-hystrix-dashboard-8200</module>
         <module>09-spring-cloud-gateway-server-9000</module>
         <module>09-spring-cloud-gateway-order-9100</module>
+        <module>10-spring-cloud-config-server-10000</module>
     </modules>
 
     <!-- 统一管理jar包版本 -->

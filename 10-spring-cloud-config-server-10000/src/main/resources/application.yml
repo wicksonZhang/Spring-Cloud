@@ -1,0 +1,35 @@
+# 服务端口
+server:
+  port: 10000
+# 应用名称
+spring:
+  application:
+    name: spring-cloud-config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: git@github.com:wicksonZhang/Spring-Cloud.git
+          # 搜索目录
+          search-paths:
+            - 10-spring-cloud-config
+      # 读取分支
+      label: master
+
+
+#--------------------------------- Eureka 配置 start ---------------------------------
+eureka:
+  instance:
+    hostname: spring-cloud-config-server
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-config-server:10000
+    instance-id: spring-cloud-config-server:10000
+    # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+    prefer-ip-address: true
+  client:
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+      defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+#--------------------------------- Eureka 配置  end  ---------------------------------
+
