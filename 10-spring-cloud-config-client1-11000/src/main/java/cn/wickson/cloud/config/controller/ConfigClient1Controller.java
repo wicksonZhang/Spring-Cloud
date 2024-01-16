@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RefreshScope
-@RequestMapping("/config-client")
-public class ConfigClientController {
+@RequestMapping("/config-client1")
+public class ConfigClient1Controller {
 
     @Value("${config.info}")
     private String configInfo;

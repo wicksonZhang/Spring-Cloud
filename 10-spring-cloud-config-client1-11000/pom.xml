@@ -10,7 +10,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <description>Spring Cloud Config 客户端服务</description>
-    <artifactId>10-spring-cloud-config-client-11000</artifactId>
+    <artifactId>10-spring-cloud-config-client1-11000</artifactId>
 
     <dependencies>
         <!-- 公共依赖 -->
@@ -18,6 +18,12 @@
             <groupId>cn.wickson.cloud</groupId>
             <artifactId>01-spring-cloud-common</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- 添加消息总线 RabbitMQ 依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
         </dependency>
 
         <!-- Spring Cloud Config 依赖 -->

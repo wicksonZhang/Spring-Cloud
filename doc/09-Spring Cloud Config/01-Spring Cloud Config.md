@@ -283,8 +283,8 @@ spring:
 eureka:
   instance:
     hostname: spring-cloud-config-client
-    # 设置Eureka服务实例的唯一标识为 spring-cloud-config-client:11000
-    instance-id: spring-cloud-config-client:11000
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-config-client1:11000
+    instance-id: spring-cloud-config-client1:11000
     # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
     prefer-ip-address: true
   client:
@@ -354,6 +354,7 @@ public class ConfigClientController {
 **Step-5：测试**
 
 * 我们目前测试的是 `config-dev.yml`
+* 访问地址：http://localhost:11000/config-client1/config-info
 
 <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401152122706.gif" alt="动画" style="float:left" />
 
@@ -371,5 +372,4 @@ C:\Users\wicks>
 ```
 
 ![动画](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401152159890.gif)
-
 

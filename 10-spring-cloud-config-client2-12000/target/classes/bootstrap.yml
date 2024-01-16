@@ -1,20 +1,22 @@
 # 服务端口
 server:
-  port: 10000
+  port: 12000
 # 应用名称
 spring:
   application:
-    name: spring-cloud-config-server
+    name: spring-cloud-config-client
   cloud:
+    # 配置文件读取地址：http://config10000.com/main/config-dev.yml
+    # 配置文件读取规则：/main分支/配置文件名称+配置文件后缀.yml
     config:
-      server:
-        git:
-          uri: https://github.com/wicksonZhang/Spring-Cloud.git
-          # 搜索目录
-          search-paths:
-            - 10-spring-cloud-config
-      # 读取分支
+      # 分支名称
       label: main
+      # 配置文件名称
+      name: config
+      # 读取配置文件后缀
+      profile: dev
+      # 配置中心地址
+      uri: http://localhost:10000
   #------------------------------- 新增 RabbitMQ 相关配置 start -------------------------------
   rabbitmq:
     host: localhost
@@ -26,9 +28,9 @@ spring:
 #--------------------------------- Eureka 配置 start ---------------------------------
 eureka:
   instance:
-    hostname: spring-cloud-config-server
-    # 设置Eureka服务实例的唯一标识为 spring-cloud-config-server:10000
-    instance-id: spring-cloud-config-server:10000
+    hostname: spring-cloud-config-client2
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-config-client2:12000
+    instance-id: spring-cloud-config-client2:12000
     # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
     prefer-ip-address: true
   client:
@@ -39,10 +41,10 @@ eureka:
       defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
 #--------------------------------- Eureka 配置  end  ---------------------------------
 
-#-------------------------------- 暴露 bus 刷新配置的端点 start --------------------------------
+#--------------------------------- config 客户端配置暴露监控端点 start ---------------------------------
 management:
   endpoints:
     web:
       exposure:
-        include: 'bus-refresh'
-#-------------------------------- 暴露 bus 刷新配置的端点 end   --------------------------------
+        include: "*"
+#--------------------------------- config 客户端配置暴露监控端点 end   ---------------------------------
