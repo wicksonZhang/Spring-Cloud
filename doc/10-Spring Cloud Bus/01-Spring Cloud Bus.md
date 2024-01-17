@@ -108,7 +108,7 @@ D:\software\RabbitMQ Server\rabbitmq_server-3.7.14\sbin>
 
 
 
-## 具体操作
+## 具体实现
 
 > 我们是基于上一章节 `Spring Cloud Config` 的案例进行实现的。
 
@@ -178,7 +178,7 @@ management:
 #-------------------------------- 暴露 bus 刷新配置的端点 end   --------------------------------
 ```
 
-注意，如果报错请参考博文：https://blog.csdn.net/qq_41731201/article/details/123527717
+注意，如果报错请参考博文：https://blog.csdn.net/qq_45982171/article/details/128208254
 
 ```tex
 org.eclipse.jgit.api.errors.TransportException: https://github.com/wicksonZhang/Spring-Cloud.git: cannot open git-upload-pack
@@ -242,6 +242,7 @@ management:
 2. Step-2: 导入 pom.xml 依赖
 3. Step-3: 创建 bootstrap.yml 配置文件
 4. Step-4: 创建启动类
+5. Step-5: 创建控制类
 ```
 
 **Step-1: 创建项目 `10-spring-cloud-config-client2-12000` **
@@ -346,9 +347,87 @@ public class SpringCloudConfigClient2Application {
 }
 ```
 
+**Step-5: 创建控制类**
+
+```java
+@Slf4j
+@Validated
+@RestController
+@RefreshScope
+@RequestMapping("/config-client2")
+public class ConfigClient2Controller {
+
+    @Value("${config.info}")
+    private String configInfo;
+
+    @GetMapping("/config-info")
+    public String getConfigInfo() {
+        return configInfo;
+    }
+
+}
+```
 
 
-### 单元测试
 
-* 当我们修改 `github` 仓库中的配置文件，然后访问 配置服务端、配置客户端1、配置客户端2 是否读取到修改之后的配置
+## 广播通知
 
+> 广播通知：配置发生变化之后，只要将配置注册在 `Spring Cloud Config` 中的服务都会收到通知。
+
+* 广播通知-通知服务端(**推荐方案**)：主要是利用消息总线触发服务端的 `ConfigServer` 的 `/bus/refresh` 端点，从而刷新所有客户端的配置。
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401171046166.png" alt="image-20240117104652124" style="zoom:90%;float:left" />
+
+* 广播通知-通知客户端：主要是利用消息总线触发客户端的 `/bus/refresh` 端点，从而刷新所有客户端的配置。
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401171043113.png" alt="在这里插入图片描述" style="zoom:78%;float:left" />
+
+* 总结：我们不应该使用通知客户端的方式刷新所有客户端的配置，因为这打破了微服务的单一原则，微服务本身是业务模块，不应该承担刷新客户端的责任。
+
+
+
+**测试步骤如下：**
+
+* 首先，启动项目：两个 Eureka 注册中心【3300、3400】、配置服务端【10000】、配置客户端1【11000】、配置客户端2【12000】
+* 其次，查看各个服务中读取到的配置是什么。
+* 接着，修改 `github` 仓库中的配置文件，修改配置中的【version】。
+* 然后，利用消息总线触发服务端的 `bus-refresh` ，从而刷新整个客户端的配置。
+* 最后，访问 配置服务端、配置客户端1、配置客户端2 是否读取到修改之后的配置。
+
+```tex
+C:\Users\wicks>curl -X POST "http://localhost:10000/actuator/bus-refresh"
+
+C:\Users\wicks>
+```
+
+<img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401170943293.gif" alt="动画" style="zoom:100%;float:left" />
+
+
+
+## 定点通知
+
+> 定点通知：跟广播通知不同的是，定点通知只会通知具体的服务，都不会进行广播通知。
+
+**测试步骤如下：**
+
+* 首先，启动项目：两个 Eureka 注册中心【3300、3400】、配置服务端【10000】、配置客户端1【11000】、配置客户端2【12000】
+* 其次，查看各个服务中读取到的配置是什么。
+* 接着，修改 `github` 仓库中的配置文件，修改配置中的【version】。
+* 然后，利用消息总线定点通知指定客户端的 `bus-refresh` ，从而刷新当前客户端的配置。
+* 最后，访问 配置服务端、配置客户端1、配置客户端2 是否读取到修改之后的配置。
+
+```tex
+C:\Users\wicks>curl -X POST "http://localhost:10000/actuator/bus-refresh/spring-cloud-config-client:11000"
+
+C:\Users\wicks>
+```
+
+<img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401171130410.gif" alt="动画" style="zoom:100%;float:left" />
+
+
+
+## 基本原理
+
+​		其实我们 `ConfigCilent` 实例都是监听的 `MQ` 中同一个 topic（默认是 `SpringCloudBus`），当一个服务刷新数据的时候，它会把这个信息放入到 Topic 中，这样其他监听的 Topic 服务就会得到更新，然后更新自身的配置。
+
+![image-20240117113818189](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401171138247.png)

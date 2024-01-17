@@ -13,6 +13,12 @@ spring:
           # 搜索目录
           search-paths:
             - 10-spring-cloud-config
+          #因为要连接外网，所以必须设置代理，电脑的vpn要连接，并且配置文件中也要配置代理
+          #host和port的值是从代理工具里查找到的
+          proxy:
+            https:
+              host: 127.0.0.1
+              port: 7890
       # 读取分支
       label: main
   #------------------------------- 新增 RabbitMQ 相关配置 start -------------------------------
