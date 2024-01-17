@@ -1,5 +1,14 @@
 # Spring Cloud Bus
 
+> 本章节的代码：https://github.com/wicksonZhang/Spring-Cloud
+>
+> 我们只需要聚焦在如下服务当中：
+>
+> * [10-spring-cloud-config-client1-11000](https://github.com/wicksonZhang/Spring-Cloud/tree/main/10-spring-cloud-config-client1-11000)
+> * [10-spring-cloud-config-client2-12000](https://github.com/wicksonZhang/Spring-Cloud/tree/main/10-spring-cloud-config-client2-12000)
+> * [10-spring-cloud-config-server-10000](https://github.com/wicksonZhang/Spring-Cloud/tree/main/10-spring-cloud-config-server-10000)
+> * [10-spring-cloud-config](https://github.com/wicksonZhang/Spring-Cloud/tree/main/10-spring-cloud-config)
+
 ## 基础概念
 
 ### Spring Cloud Bus 解决了什么问题？
@@ -42,7 +51,7 @@
 
 > 本次由于 `Spring Cloud Config` 需要只是消息代理作为传输工具，所以需要安装 `RabbitMQ`.
 >
-> 安装环境：Windows 11
+> 安装环境：Windows 11、Erlang、rabbitmq-server-3.7.14.exe
 
 **安装步骤**
 
@@ -125,7 +134,7 @@ D:\software\RabbitMQ Server\rabbitmq_server-3.7.14\sbin>
 
 * 代码结构
 
-
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401171140833.png" alt="image-20240117114010803" style="zoom:100%;float:left" />
 
 ### 修改服务端代码
 

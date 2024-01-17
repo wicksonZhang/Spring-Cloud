@@ -4,7 +4,9 @@
 >
 > 我们只需要聚焦在如下服务当中：
 >
-> 
+> * [10-spring-cloud-config-client1-11000](https://github.com/wicksonZhang/Spring-Cloud/tree/main/10-spring-cloud-config-client1-11000)
+> * [10-spring-cloud-config-server-10000](https://github.com/wicksonZhang/Spring-Cloud/tree/main/10-spring-cloud-config-server-10000)
+> * [10-spring-cloud-config](https://github.com/wicksonZhang/Spring-Cloud/tree/main/10-spring-cloud-config)
 
 ## Spring Cloud Config 基础概念
 
