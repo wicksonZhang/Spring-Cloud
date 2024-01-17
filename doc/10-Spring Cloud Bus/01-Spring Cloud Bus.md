@@ -19,7 +19,7 @@
 
 ### Spring Cloud Bus 是什么？
 
-​		Spring Cloud Bus 是 Spring Cloud 中的一个组件，用于实现分布式系统中的消息总线功能，一般与 `Spring Cloud Config` 结合进行使用。它允许在微服务架构中通过消息代理（消息队列）实现服务之间的通信与写作，主要功能和特性如下：
+​		Spring Cloud Bus 是 Spring Cloud 中的一个组件，用于实现分布式系统中的消息总线功能，一般与 `Spring Cloud Config` 结合进行使用。它允许在微服务架构中通过消息代理（消息队列）实现服务之间的通信与协作，主要功能和特性如下：
 
 * **配置刷新：**`Spring Cloud Bus` 主要用于解决分布式系统中的配置动态刷新问题。当配置中心的配置发生变化是无须重启服务进行刷新，而是通过 `Spring Cloud Bus` 进行消息广播通知相关的微服务实例。
 * **消息代理：**`Spring Cloud Bus` 使用消息代理（`RabbitMQ`、`Kafka`）作为传输工具。
@@ -123,14 +123,14 @@ D:\software\RabbitMQ Server\rabbitmq_server-3.7.14\sbin>
 
 * 实现需求
 
-  * 我们基于 `Spring Cloud Bus` 实现动态刷新配置文件，并通知所有服务。
+  1. 我们基于 `Spring Cloud Bus` 实现动态刷新配置文件，并通知所有服务。
 
 * 实现思路
 
-  * Step-1：我们基于创建的文件进行开发。
-  * Step-2：修改配置服务端 `10-spring-cloud-config-server-10000`
-  * Step-3：修改配置客户端1 `10-spring-cloud-config-client1-11000`
-  * Step-4：创建配置客户端2 `10-spring-cloud-config-client2-12000`
+  1. Step-1：我们基于 `Spring Cloud Config` 案例进行开发。
+  2. Step-2：修改配置服务端 `10-spring-cloud-config-server-10000`
+  3. Step-3：修改配置客户端1 `10-spring-cloud-config-client1-11000`
+  4. Step-4：创建配置客户端2 `10-spring-cloud-config-client2-12000`
 
 * 代码结构
 
@@ -397,11 +397,11 @@ public class ConfigClient2Controller {
 
 **测试步骤如下：**
 
-* 首先，启动项目：两个 Eureka 注册中心【3300、3400】、配置服务端【10000】、配置客户端1【11000】、配置客户端2【12000】
-* 其次，查看各个服务中读取到的配置是什么。
-* 接着，修改 `github` 仓库中的配置文件，修改配置中的【version】。
-* 然后，利用消息总线触发服务端的 `bus-refresh` ，从而刷新整个客户端的配置。
-* 最后，访问 配置服务端、配置客户端1、配置客户端2 是否读取到修改之后的配置。
+1. 首先，启动项目：两个 Eureka 注册中心【3300、3400】、配置服务端【10000】、配置客户端1【11000】、配置客户端2【12000】
+2. 其次，查看各个服务中读取到的配置是什么。
+3. 接着，修改 `github` 仓库中的配置文件，修改配置中的【version】。
+4. 然后，利用消息总线触发服务端的 `bus-refresh` ，从而刷新整个客户端的配置。
+5. 最后，访问 配置服务端、配置客户端1、配置客户端2 是否读取到修改之后的配置。
 
 ```tex
 C:\Users\wicks>curl -X POST "http://localhost:10000/actuator/bus-refresh"
@@ -419,11 +419,11 @@ C:\Users\wicks>
 
 **测试步骤如下：**
 
-* 首先，启动项目：两个 Eureka 注册中心【3300、3400】、配置服务端【10000】、配置客户端1【11000】、配置客户端2【12000】
-* 其次，查看各个服务中读取到的配置是什么。
-* 接着，修改 `github` 仓库中的配置文件，修改配置中的【version】。
-* 然后，利用消息总线定点通知指定客户端的 `bus-refresh` ，从而刷新当前客户端的配置。
-* 最后，访问 配置服务端、配置客户端1、配置客户端2 是否读取到修改之后的配置。
+1. 首先，启动项目：两个 Eureka 注册中心【3300、3400】、配置服务端【10000】、配置客户端1【11000】、配置客户端2【12000】
+2. 其次，查看各个服务中读取到的配置是什么。
+3. 接着，修改 `github` 仓库中的配置文件，修改配置中的【version】。
+4. 然后，利用消息总线定点通知指定客户端的 `bus-refresh` ，从而刷新当前客户端的配置。
+5. 最后，访问 配置服务端、配置客户端1、配置客户端2 是否读取到修改之后的配置。
 
 ```tex
 C:\Users\wicks>curl -X POST "http://localhost:10000/actuator/bus-refresh/spring-cloud-config-client:11000"
