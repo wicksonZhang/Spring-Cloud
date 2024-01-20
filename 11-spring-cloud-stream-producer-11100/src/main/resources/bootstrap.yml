@@ -1,0 +1,54 @@
+# 服务端口
+server:
+  port: 11100
+# 应用名称
+spring:
+  application:
+    name: spring-cloud-stream-producer
+  cloud:
+    inetutils:
+      preferred-networks: 192.168.10.221
+# --------------------------- Spring Cloud Stream 配置 start ---------------------------
+    stream:
+      # 绑定 rabbitmq 服务信息
+      binders:
+        # 定义的名称，用于整合 binding
+        defaultRabbit:
+          # 消息组件类型
+          type: rabbit
+          # 设置 RabbitMQ 的相关环境配置
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: guest
+                password: guest
+      # 服务的整合处理
+      bindings:
+        # 通道名称
+        output:
+          destination: stream-exchange
+          content-type: application/json
+          binder: defaultRabbit
+# --------------------------- Spring Cloud Stream 配置 end ---------------------------
+
+#--------------------------------- Eureka 配置 start ---------------------------------
+eureka:
+  instance:
+    hostname: spring-cloud-stream-producer
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-stream-producer:11100
+    instance-id: spring-cloud-stream-producer:11100
+    # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+    prefer-ip-address: true
+    # 设置心跳间隔时间, 默认 30 S
+    lease-renewal-interval-in-seconds: 2
+    # 设置服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除, 默认 90 S
+    lease-expiration-duration-in-seconds: 5
+  client:
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+      defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+#--------------------------------- Eureka 配置  end  ---------------------------------

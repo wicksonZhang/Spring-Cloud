@@ -36,6 +36,9 @@
         <module>10-spring-cloud-config-server-10000</module>
         <module>10-spring-cloud-config-client1-11000</module>
         <module>10-spring-cloud-config-client2-12000</module>
+        <module>11-spring-cloud-stream-producer-11100</module>
+        <module>11-spring-cloud-stream-consumer1-11200</module>
+        <module>11-spring-cloud-stream-consumer2-11300</module>
     </modules>
 
     <!-- 统一管理jar包版本 -->

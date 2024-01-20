@@ -14,6 +14,8 @@
 
 ​		假设有一个电商系统，其中订单服务负责处理订单相关的业务，当订单服务产生一个新的订单时，需要将这条订单信息发送到**消息通道**，而不需要关心消息是如何被处理、传递到哪里的。订单服务产生订单信息之后，库存服务需要减少相应库存，那么库存服务只需要通过订阅相应的**消息通道**，处理订单创建的消息。
 
+​		再举一个场景的例子，类似于微信公众号的消息推送。当公众号推送消息之后，只有订阅了这个公众号的人才能收到消息。
+
 ​		这种方式下，消息生产者和消费者之间是松耦合的，它们可以独立部署和演化，更好地支持微服务架构的原则。
 
 
@@ -45,6 +47,364 @@ Spring Cloud Stream 是基于 Spring Boot 的一个用于构建消息驱动微�
 1. **过度抽象可能导致不灵活：** 尽管高度的抽象使得开发变得简单，但在一些特定场景下，过度的抽象可能会导致不够灵活。一些复杂的消息处理需求可能需要更详细的配置和定制。
 
 
+
+## 核心注解
+
+
+
+
+
+## 具体操作
+
+* 实现需求
+
+  1. 我们创建消息生产者和消息消费者。当生产者产生消息之后，两个消费者会通过消息通道监听到对应的消息。具体大流程如下图
+
+     <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401190958348.png" alt="img" style="zoom:52%;float:left" />
+
+* 实现思路
+
+  1. Step-1：创建消息生产者 `11-spring-cloud-stream-producer`
+  2. Step-2：创建消息消费者1 `11-spring-cloud-stream-consumer1-11200`
+  3. Step-3：创建消息消费者2 `11-spring-cloud-stream-consumer2-11300`
+
+* 代码结构
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401191428602.png" alt="image-20240119142823575" style="zoom:100%;float:left" />
+
+
+
+### 创建消息生产者
+
+**实现步骤**
+
+```tex
+Step-1: 创建消息生产者服务 11-spring-cloud-stream-producer-11100
+Step-2: 导入 pom.xml 依赖
+Step-3: 创建 bootstrap.yml
+Step-4: 创建启动类 SpringCloudStreamProducerApplication
+Step-5: 创建控制类 ProducerController
+Step-6: 创建消息生产者 IMessageProvider、MessageProviderImpl
+```
+
+**Step-2: 导入 pom.xml 依赖**
+
+```xml
+    <dependencies>
+        <!-- 引入公共依赖模块 -->
+        <dependency>
+            <groupId>cn.wickson.cloud</groupId>
+            <artifactId>01-spring-cloud-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Spring Cloud netflix eureka 服务-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!-- Spring Cloud Stream 依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+        </dependency>
+    </dependencies>
+```
+
+**Step-3: 创建 bootstrap.yml**
+
+```yaml
+# 服务端口
+server:
+  port: 11100
+# 应用名称
+spring:
+  application:
+    name: spring-cloud-stream-producer
+  cloud:
+# --------------------------- Spring Cloud Stream 配置 start ---------------------------
+    stream:
+      # 绑定 rabbitmq 服务信息
+      binders:
+        # 定义的名称，用于整合 binding
+        defaultRabbit:
+          # 消息组件类型
+          type: rabbit
+          # 设置 RabbitMQ 的相关环境配置
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: guest
+                password: guest
+      # 服务的整合处理
+      bindings:
+        # 通道名称
+        output:
+          destination: stream-exchange
+          content-type: application/json
+          binder: defaultRabbit
+# --------------------------- Spring Cloud Stream 配置 end ---------------------------
+
+#--------------------------------- Eureka 配置 start ---------------------------------
+eureka:
+  instance:
+    hostname: spring-cloud-stream-producer
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-stream-producer:11100
+    instance-id: spring-cloud-stream-producer:11100
+    # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+    prefer-ip-address: true
+    # 设置心跳间隔时间, 默认 30 S
+    lease-renewal-interval-in-seconds: 2
+    # 设置服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除, 默认 90 S
+    lease-expiration-duration-in-seconds: 5
+  client:
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+      defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+#--------------------------------- Eureka 配置  end  ---------------------------------
+```
+
+**Step-4: 创建启动类 SpringCloudStreamProducerApplication**
+
+```java
+/**
+ * Spring Cloud Stream Producer 启动类
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-19
+ */
+@EnableEurekaClient
+@SpringBootApplication(scanBasePackages = "cn.wickson.cloud")
+public class SpringCloudStreamProducerApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringCloudStreamProducerApplication.class, args);
+    }
+
+}
+```
+
+**Step-5: 创建控制类 ProducerController**
+
+```java
+/**
+ * 生产者控制类
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-19
+ */
+@Slf4j
+@Validated
+@RestController
+@RequestMapping("/producer")
+public class ProducerController {
+
+    @Resource
+    private IMessageProvider messageProvider;
+
+    @GetMapping(value = "/sendMessage")
+    public String sendMessage() {
+        return messageProvider.sendMessage();
+    }
+
+}
+```
+
+**Step-6: 创建消息生产者 IMessageProvider、MessageProviderImpl**
+
+* `IMessageProvider.java`
+
+```java
+/**
+ * 消息生产者
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-19
+ */
+public interface IMessageProvider {
+
+    String sendMessage();
+
+}
+```
+
+* `MessageProviderImpl.java`
+
+```java
+/**
+ * 消息生产者-实现类
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-19
+ */
+@Slf4j
+// 定义消息的推送管道
+@EnableBinding(Source.class)
+public class MessageProviderImpl implements IMessageProvider {
+
+    // 消息发送管道
+    @Resource
+    private MessageChannel output;
+
+    @Override
+    public String sendMessage() {
+        String uuid = UUID.randomUUID().toString();
+        output.send(MessageBuilder.withPayload(uuid).build());
+        return "生产者生产一条消息：" + uuid;
+    }
+}
+```
+
+### 创建消息消费者1
+
+**实现步骤**
+
+```tex
+Step-1: 创建消息消费者1服务 11-spring-cloud-stream-consumer1-11200
+Step-2: 导入 pom.xml 依赖
+Step-3: 创建 bootstrap.yml
+Step-4: 创建启动类 SpringCloudStreamConsumer1Application
+Step-5: 创建监听类 Consumer1MessageListener
+```
+
+**Step-2: 导入 pom.xml 依赖**
+
+```xml
+    <dependencies>
+        <!-- 引入公共依赖模块 -->
+        <dependency>
+            <groupId>cn.wickson.cloud</groupId>
+            <artifactId>01-spring-cloud-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Spring Cloud netflix eureka 服务-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!-- Spring Cloud Stream 依赖 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+        </dependency>
+    </dependencies>
+```
+
+**Step-3: 创建 bootstrap.yml**
+
+```yml
+# 服务端口
+server:
+  port: 11200
+# 应用名称
+spring:
+  application:
+    name: spring-cloud-stream-consumer1
+  cloud:
+    # --------------------------- Spring Cloud Stream 配置 start ---------------------------
+    stream:
+      # 绑定 rabbitmq 服务信息
+      binders:
+        # 定义的名称，用于整合 binding
+        defaultRabbit:
+          # 消息组件类型
+          type: rabbit
+          # 设置 RabbitMQ 的相关环境配置
+          environment:
+            spring:
+              rabbitmq:
+                host: localhost
+                port: 5672
+                username: guest
+                password: guest
+      # 服务的整合处理
+      bindings:
+        # 通道名称
+        input:
+          # 表示使用的 exchange 名称定义
+          destination: stream-exchange
+          # 设置消息类型
+          content-type: application/json
+          # 设置绑定消息服务的具体设置
+          binder: defaultRabbit
+          group: consumer1
+# --------------------------- Spring Cloud Stream 配置 end ---------------------------
+
+#--------------------------------- Eureka 配置 start ---------------------------------
+eureka:
+  instance:
+    hostname: spring-cloud-stream-consumer1
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-stream-consumer1:11200
+    instance-id: spring-cloud-stream-consumer1:11200
+    # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
+    prefer-ip-address: true
+    # 设置心跳间隔时间, 默认 30 S
+    lease-renewal-interval-in-seconds: 2
+    # 设置服务过期时间配置,超过这个时间没有接收到心跳EurekaServer就会将这个实例剔除, 默认 90 S
+    lease-expiration-duration-in-seconds: 5
+  client:
+    service-url:
+      register-with-eureka: true
+      fetch-registry: true
+      # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
+      defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
+#--------------------------------- Eureka 配置  end  ---------------------------------
+```
+
+**Step-4: 创建启动类 SpringCloudStreamConsumer1Application**
+
+```java
+/**
+ * Spring Cloud Stream 消费者1启动类
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-19
+ */
+@EnableEurekaClient
+@SpringBootApplication
+public class SpringCloudStreamConsumer1Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringCloudStreamConsumer1Application.class, args);
+    }
+}
+```
+
+**Step-5: 创建监听类 Consumer1MessageListener**
+
+```java
+/**
+ * 消费者监听器
+ *
+ * @author ZhangZiHeng
+ * @date 2024-01-19
+ */
+@Slf4j
+@Component
+@EnableBinding(Sink.class)
+public class Consumer1MessageListener {
+
+    @Value("${server.port}")
+    private String serverPort;
+
+    @StreamListener(Sink.INPUT)
+    public void input(Message<String> message) {
+        log.info("Server.Port:{} , Consumer1MessageListener receive message :{}", serverPort, message.getPayload());
+    }
+
+}
+```
+
+### 创建消息消费者2
+
+* 具体实现步骤和 创建消息消费者2 是一致的。
 
 
 
