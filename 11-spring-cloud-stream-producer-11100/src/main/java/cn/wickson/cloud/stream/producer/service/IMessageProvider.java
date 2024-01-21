@@ -8,6 +8,11 @@ package cn.wickson.cloud.stream.producer.service;
  */
 public interface IMessageProvider {
 
-    String sendMessage();
+    /**
+     * 生产者生产消息
+     *
+     * @return String
+     */
+    String producerMessage();
 
 }

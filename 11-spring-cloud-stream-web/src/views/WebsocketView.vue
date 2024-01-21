@@ -1,5 +1,6 @@
 <template>
     <div>
+        <h1 class="section-title">消费者处于同一个 Group </h1>
         <!-- 输入消息框和发送按钮 -->
         <div class="input-container">
             <el-button size="medium" type="success" @click="sendMessage" class="send-button">点击按钮 - 生产者生产消息</el-button>
@@ -72,7 +73,7 @@
              * 连接 WebSocket
              */
             connectWebSocket() {
-                const socket = new SockJS("http://192.168.10.221:11100/msgServer"); // 创建新的 SockJS 连接
+                const socket = new SockJS("http://192.168.10.221:11400/websocket/server"); // 创建新的 SockJS 连接
                 this.stompClient = WebStomp.over(socket); // 创建新的 Stomp 客户端
                 let headers = {};
                 this.stompClient.connect(headers, this.onWebSocketConnect, this.onWebSocketError); // 连接 Stomp 客户端
@@ -91,7 +92,7 @@
              * 订阅主题
              */
             subscribeToTopics() {
-                this.subscribeToProducer(`/producer/sendMessage`);
+                this.subscribeToProducer(`/producer/producer-message`);
                 this.subscribeToConsumer1(`/consumer1/receive-message`);
                 this.subscribeToConsumer2(`/consumer2/receive-message`);
             },

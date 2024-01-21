@@ -1,5 +1,6 @@
 package cn.wickson.cloud.stream.consumer2.listener;
 
+import cn.wickson.cloud.stream.consumer2.feign.ApiWebSocketFeign;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.annotation.EnableBinding;
@@ -26,12 +27,13 @@ public class Consumer2MessageListener {
     private String serverPort;
 
     @Resource
-    private SimpMessagingTemplate messagingTemplate;
+    private ApiWebSocketFeign apiWebSocketFeign;
 
     @StreamListener(Sink.INPUT)
     public void input(Message<String> message) {
-        messagingTemplate.convertAndSend("/consumer2/receive-message", "消费者1接收到消息：" + message.getPayload());
         log.info("Server.Port:{} , Consumer1MessageListener receive message :{}", serverPort, message.getPayload());
+        String msg = "Server.Port: " + serverPort + ", 消费者2接收到消息: " + message.getPayload();
+        apiWebSocketFeign.consumer2ReceiveMessage(msg);
     }
 
 }

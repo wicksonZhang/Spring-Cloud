@@ -1,4 +1,4 @@
-package cn.wickson.cloud.stream.consumer1;
+package cn.wickson.cloud.stream.websocket;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -7,7 +7,7 @@ import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
- * Spring Cloud Stream 消费者1启动类
+ * Spring Cloud Stream Websocket 启动类
  *
  * @author ZhangZiHeng
  * @date 2024-01-19
@@ -16,9 +16,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableEurekaClient // 启用 Eureka 客户端
 @EnableFeignClients // 启用 Feign 客户端
 @SpringBootApplication
-public class SpringCloudStreamConsumer1Application {
+public class SpringCloudStreamWebSocketApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringCloudStreamConsumer1Application.class, args);
+        SpringApplication.run(SpringCloudStreamWebSocketApplication.class, args);
     }
+
 }

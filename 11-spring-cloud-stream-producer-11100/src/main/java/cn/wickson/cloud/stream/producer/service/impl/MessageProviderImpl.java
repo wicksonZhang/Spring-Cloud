@@ -17,8 +17,7 @@ import javax.annotation.Resource;
  * @date 2024-01-19
  */
 @Slf4j
-// 定义消息的推送管道
-@EnableBinding(Source.class)
+@EnableBinding(Source.class) // 定义消息的推送管道
 public class MessageProviderImpl implements IMessageProvider {
 
     // 消息发送管道
@@ -26,7 +25,7 @@ public class MessageProviderImpl implements IMessageProvider {
     private MessageChannel output;
 
     @Override
-    public String sendMessage() {
+    public String producerMessage() {
         String uuid = UUID.randomUUID().toString();
         output.send(MessageBuilder.withPayload(uuid).build());
         return "生产者生产一条消息：" + uuid;

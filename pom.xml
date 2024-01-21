@@ -39,6 +39,8 @@
         <module>11-spring-cloud-stream-producer-11100</module>
         <module>11-spring-cloud-stream-consumer1-11200</module>
         <module>11-spring-cloud-stream-consumer2-11300</module>
+        <module>11-spring-cloud-stream-gateway-11400</module>
+        <module>11-spring-cloud-stream-websocket-11500</module>
     </modules>
 
     <!-- 统一管理jar包版本 -->

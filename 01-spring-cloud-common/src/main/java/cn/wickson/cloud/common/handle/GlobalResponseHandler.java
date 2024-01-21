@@ -33,7 +33,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
                 "cn.wickson.cloud.hystrix.order.controller",
                 "cn.wickson.cloud.hystrix.payment.controller",
                 "cn.wickson.cloud.config.controller",
-                "cn.wickson.cloud.stream.producer.controller",
         })
 public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
 

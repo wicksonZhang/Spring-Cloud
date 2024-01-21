@@ -56,3 +56,32 @@ eureka:
       # 设置与eureka server交互的地址查询服务和注册服务都需要依赖这个地址
       defaultZone: http://eureka3300.com:3300/eureka,http://eureka3400.com:3400/eureka
 #--------------------------------- Eureka 配置  end  ---------------------------------
+
+#---------------------------------  open Feign 配置  ---------------------------------
+feign:
+  hystrix:
+    enabled: true
+  client:
+    config:
+      default:
+        # 建立连接所有的时间，适用于网络状况正常的情况，两端建立所花费时间
+        connectTimeout: 5000
+        # 建立连接后服务端读取可用资源所有的时间，默认是 1S
+        readTimeout: 5000
+
+#  open Feign 日志打印
+logging:
+  level:
+    cn.wickson.cloud.stream.consumer1.feign.ApiWebSocketFeign: debug
+#---------------------------------  open Feign 配置  ----------------------------------
+
+#---------------------------------      hystrix     ---------------------------------
+# 配置 hystrix 连接超时
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+#---------------------------------      hystrix     ---------------------------------

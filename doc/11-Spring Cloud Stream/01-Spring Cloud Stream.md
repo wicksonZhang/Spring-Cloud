@@ -408,3 +408,52 @@ public class Consumer1MessageListener {
 
 
 
+## 单元测试
+
+我们在上面的基础上，重新新增了两个服务进行单元测试，分别是 `WebSocket` 和 `Gateway` 两个微服务 和 前端项目。
+
+* 服务信息如下：
+
+  <img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401211627925.png" alt="image-20240121162736884" style="zoom:100%;float:left" />
+
+* Eureka 服务信息如下：
+
+  ![image-20240121163236518](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401211632581.png)
+
+### 消费者处于同一个组
+
+> 当两个消费者处于同一个组：`group: consumer1`，这两个组中只会有其中一个服务会接收到消息，不会重复消费。
+
+* `bootstrap.yml`
+
+  ```yaml
+        # 服务的整合处理
+        bindings:
+          # 通道名称
+          input:
+            # 表示使用的 exchange 名称定义
+            destination: stream-exchange
+            # 设置消息类型
+            content-type: application/json
+            # 设置绑定消息服务的具体设置
+            binder: defaultRabbit
+            group: consumer1
+  ```
+
+  
+
+* 当两个消费者处于同一个组：`group: consumer1`
+
+![动画](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401211639065.gif)
+
+### 消费者处于不同的组
+
+> 当两个消费者处于不同的个组
+>
+> * consumer1 处于 `group: consumer1`
+> * consumer2 处于 `group:consumer2`
+> * 这两个组中只都会接收到消息，不会重复消费。
+
+* 当两个消费者处于不同的组
+
+  ![动画](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401211646310.gif)

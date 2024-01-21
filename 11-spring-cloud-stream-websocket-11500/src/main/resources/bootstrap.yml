@@ -1,48 +1,20 @@
 # 服务端口
 server:
-  port: 11300
+  port: 11500
 # 应用名称
 spring:
   application:
-    name: spring-cloud-stream-consumer2
+    name: spring-cloud-stream-websocket
   cloud:
     inetutils:
       preferred-networks: 192.168.10.221
-    # --------------------------- Spring Cloud Stream 配置 start ---------------------------
-    stream:
-      # 绑定 rabbitmq 服务信息
-      binders:
-        # 定义的名称，用于整合 binding
-        defaultRabbit:
-          # 消息组件类型
-          type: rabbit
-          # 设置 RabbitMQ 的相关环境配置
-          environment:
-            spring:
-              rabbitmq:
-                host: localhost
-                port: 5672
-                username: guest
-                password: guest
-      # 服务的整合处理
-      bindings:
-        # 通道名称
-        input:
-          # 表示使用的 exchange 名称定义
-          destination: stream-exchange
-          # 设置消息类型
-          content-type: application/json
-          # 设置绑定消息服务的具体设置
-          binder: defaultRabbit
-          group: consumer2
-# --------------------------- Spring Cloud Stream 配置 end ---------------------------
 
 #--------------------------------- Eureka 配置 start ---------------------------------
 eureka:
   instance:
-    hostname: spring-cloud-stream-consumer2
-    # 设置Eureka服务实例的唯一标识为 spring-cloud-stream-consumer2:11300
-    instance-id: spring-cloud-stream-consumer2:11300
+    hostname: spring-cloud-stream-websocket
+    # 设置Eureka服务实例的唯一标识为 spring-cloud-stream-websocket:11500
+    instance-id: spring-cloud-stream-websocket:11500
     # 设置Eureka客户端是否偏好使用IP地址注册到Eureka服务器，而不是使用主机名
     prefer-ip-address: true
     # 设置心跳间隔时间, 默认 30 S
@@ -70,7 +42,7 @@ feign:
 #  open Feign 日志打印
 logging:
   level:
-    cn.wickson.cloud.stream.consumer2.feign.ApiWebSocketFeign: debug
+    cn.wickson.cloud.stream.websocket.feign.ApiProducerFeign: debug
 #---------------------------------  open Feign 配置  ----------------------------------
 
 #---------------------------------      hystrix     ---------------------------------

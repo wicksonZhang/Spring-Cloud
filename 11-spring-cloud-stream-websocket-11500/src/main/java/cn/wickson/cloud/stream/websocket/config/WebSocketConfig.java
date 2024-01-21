@@ -1,4 +1,4 @@
-package cn.wickson.cloud.stream.consumer1.config;
+package cn.wickson.cloud.stream.websocket.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 注册一个断点，用于握手的地址
-        registry.addEndpoint("/msgServer")
+        registry.addEndpoint("/websocket/server")
                 // 允许websocket跨域
                 .setAllowedOrigins("*")
                 // 启用websocket备选方案（浏览器不支持的话就会启动）
@@ -35,8 +35,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // 客户端订阅消息的前缀，用于客户端订阅，进行消息广播发送的前缀，可对下面如“/consumer1”等地址将会推送相关的消息
-        registry.enableSimpleBroker("/consumer1");
+        // 客户端订阅消息的前缀，用于客户端订阅，进行消息广播发送的前缀，可对下面如“/producer”等地址将会推送相关的消息
+        registry.enableSimpleBroker("/producer", "/consumer1", "/consumer2");
+        // 客户端与服务端交互的前缀，前端发送信息给后端的前缀
+        registry.setApplicationDestinationPrefixes("/server");
     }
 
 
