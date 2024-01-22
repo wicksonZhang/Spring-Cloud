@@ -38,6 +38,7 @@ public class ProducerController {
             })
     @GetMapping(value = "/producer-message")
     public String producerMessage() {
+//         int index = 1 / 0;
          return messageProvider.producerMessage();
     }
 
