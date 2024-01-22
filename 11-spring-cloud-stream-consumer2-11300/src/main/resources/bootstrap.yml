@@ -34,7 +34,7 @@ spring:
           content-type: application/json
           # 设置绑定消息服务的具体设置
           binder: defaultRabbit
-          group: consumer2
+          group: consumer1
 # --------------------------- Spring Cloud Stream 配置 end ---------------------------
 
 #--------------------------------- Eureka 配置 start ---------------------------------

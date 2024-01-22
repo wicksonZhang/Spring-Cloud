@@ -3,6 +3,13 @@
 > 本章节的代码：https://github.com/wicksonZhang/Spring-Cloud
 >
 > 我们只需要聚焦在如下服务当中：
+>
+> * [11-spring-cloud-stream-consumer1-11200](https://github.com/wicksonZhang/Spring-Cloud/tree/main/11-spring-cloud-stream-consumer1-11200)
+> * [11-spring-cloud-stream-consumer2-11300](https://github.com/wicksonZhang/Spring-Cloud/tree/main/11-spring-cloud-stream-consumer2-11300)
+> * [11-spring-cloud-stream-gateway-11400](https://github.com/wicksonZhang/Spring-Cloud/tree/main/11-spring-cloud-stream-gateway-11400)
+> * [11-spring-cloud-stream-producer-11100](https://github.com/wicksonZhang/Spring-Cloud/tree/main/11-spring-cloud-stream-producer-11100)
+> * [11-spring-cloud-stream-web](https://github.com/wicksonZhang/Spring-Cloud/tree/main/11-spring-cloud-stream-web)
+> * [11-spring-cloud-stream-websocket-11500](https://github.com/wicksonZhang/Spring-Cloud/tree/main/11-spring-cloud-stream-websocket-11500)
 
 ## 基础概念
 
@@ -50,11 +57,27 @@ Spring Cloud Stream 是基于 Spring Boot 的一个用于构建消息驱动微�
 
 ## 核心注解
 
+​		如下图中是 Spring Cloud Stream 的基本原理，其中*Binder* 层负责和MQ中间件的通信，应用程序 *Application Core* 通过 *inputs* 接收 *Binder* 包装后的 Message，相当于是消费者Consumer；通过 *outputs* 投递 Message给 *Binder*，然后由 *Binder* 转换后投递给MQ中间件，相当于是生产者Producer。
 
+<img src="https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401220931781.png" alt="SCSt-with-binder" style="zoom:100%;float:left" />
+
+* 针对上图中提供了相关的注解信息，具体如下：
+
+| 组成            | 说明                                                         |
+| --------------- | ------------------------------------------------------------ |
+| Middleware      | 中间件，目前支持 *RabbitMQ* 和 *KafKa*                       |
+| Binder          | 负责和MQ中间件进行连接和通信，可以动态的改变消息类型（对应 *Kafka* 的 topic，*RabbitMQ* 的 exchange） |
+| @Input          | 注解标识输入通道，通过该输入通道接收到的消息进入应用程序     |
+| @Output         | 注解标识输出通达，发布的消息将通过该通道离开应用程序         |
+| @StreamListener | 监听队列，用于消费者的队列的消息接收                         |
+| @EnableBinding  | 将信道 *change* 和 *exchange* 绑定在一起                     |
 
 
 
 ## 具体操作
+
+* 准备工作
+  * 具体 `RabbitMQ` 消息队列
 
 * 实现需求
 
@@ -450,10 +473,10 @@ public class Consumer1MessageListener {
 
 > 当两个消费者处于不同的个组
 >
-> * consumer1 处于 `group: consumer1`
+> * consumer1 处于 `group:consumer1`
 > * consumer2 处于 `group:consumer2`
 > * 这两个组中只都会接收到消息，不会重复消费。
 
 * 当两个消费者处于不同的组
 
-  ![动画](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401211646310.gif)
+  ![动画](https://cdn.jsdelivr.net/gh/wicksonZhang/static-source-cdn/images/202401220922909.gif)

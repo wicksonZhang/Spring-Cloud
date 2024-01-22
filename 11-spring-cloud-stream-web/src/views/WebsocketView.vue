@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1 class="section-title">消费者处于同一个 Group </h1>
+        <h1 class="section-title">消费者处于不同一个组</h1>
         <!-- 输入消息框和发送按钮 -->
         <div class="input-container">
             <el-button size="medium" type="success" @click="sendMessage" class="send-button">点击按钮 - 生产者生产消息</el-button>

@@ -14,8 +14,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @EnableHystrix // 启用 Hystrix 断路器
 @EnableEurekaClient // 启用 Eureka 客户端
-@EnableFeignClients // 启用 Feign 客户端
-@SpringBootApplication
+@EnableFeignClients(basePackages = "cn.wickson.cloud") // 启用 Feign 客户端
+@SpringBootApplication(scanBasePackages = "cn.wickson.cloud")
 public class SpringCloudStreamWebSocketApplication {
 
     public static void main(String[] args) {
