@@ -5,10 +5,14 @@ server:
 spring:
   application:
     name: spring-cloud-stream-websocket
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      probability: 1
   cloud:
     inetutils:
       preferred-networks: 192.168.10.221
-
 #--------------------------------- Eureka 配置 start ---------------------------------
 eureka:
   instance:
