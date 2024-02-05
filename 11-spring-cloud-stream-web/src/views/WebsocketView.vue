@@ -1,49 +1,31 @@
 <template>
-    <div>
-        <h1 class="section-title">消费者处于不同一个组</h1>
-        <!-- 输入消息框和发送按钮 -->
-        <div class="input-container">
-            <el-button size="medium" type="success" @click="sendMessage" class="send-button">点击按钮 - 生产者生产消息</el-button>
+    <div class="chat-app">
+        <div class="producer-section">
+            <el-button size="medium" type="success" @click="sendMessage" class="send-button">发送消息</el-button>
+            <div class="card">
+                <h1 class="section-title">消息生产者</h1>
+                <div class="message-container">
+                    <el-divider class="message-divider"></el-divider>
+                    <div class="message-list">
+                        <div v-for="(msg, index) in producerMessages.slice().reverse()" :key="index" class="message">{{ msg }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- 生产者 -->
-        <section>
-            <h1 class="section-title">生产者生产消息 - 消息列表</h1>
-            <div class="message-container">
-                <el-divider class="message-divider"></el-divider>
-                <!-- 用户消息列表 -->
-                <div class="message-list">
-                    <div v-for="(msg, index) in producerMessages" :key="index" class="message">{{ msg }}</div>
+
+        <div class="consumer-section">
+            <div class="card" v-for="(messages, index) in [consumer1Messages, consumer2Messages]" :key="index">
+                <h1 class="section-title">消费者{{ index + 1 }}</h1>
+                <div class="message-container">
+                    <el-divider class="message-divider"></el-divider>
+                    <div class="message-list">
+                        <div v-for="(msg, index) in messages.slice().reverse()" :key="index" class="message">{{ msg }}</div>
+                    </div>
                 </div>
             </div>
-        </section>
-
-        <!-- 消费者1 - 消费消息 -->
-        <section>
-            <h1 class="section-title">消费者1消费消息 - 消息列表</h1>
-            <div class="message-container">
-                <el-divider class="message-divider"></el-divider>
-                <!-- 消费者1消息列表 -->
-                <div class="message-list">
-                    <div v-for="(msg, index) in consumer1Messages" :key="index" class="message">{{ msg }}</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 消费者2 - 消费消息 -->
-        <section>
-            <h1 class="section-title">消费者2消费消息 - 消息列表</h1>
-            <div class="message-container">
-                <el-divider class="message-divider"></el-divider>
-                <!-- 消费者2消息列表 -->
-                <div class="message-list">
-                    <div v-for="(msg, index) in consumer2Messages" :key="index" class="message">{{ msg }}</div>
-                </div>
-            </div>
-        </section>
-
+        </div>
     </div>
 </template>
-
 
 <script>
     import SockJS from 'sockjs-client'; // 导入 SockJS
@@ -102,7 +84,8 @@
             subscribeToProducer(topicPath) {
                 this.stompClient.subscribe(topicPath, (msg) => {
                     if (msg !== "") {
-                        this.producerMessages.push(msg.body);
+                        const currentTime = new Date().toLocaleString();
+                        this.producerMessages.push(`${currentTime}: ${msg.body}`);
                     }
                 });
             },
@@ -112,7 +95,8 @@
             subscribeToConsumer1(topicPath) {
                 this.stompClient.subscribe(topicPath, (msg) => {
                     if (msg !== "") {
-                        this.consumer1Messages.push(msg.body);
+                        const currentTime = new Date().toLocaleString();
+                        this.consumer1Messages.push(`${currentTime}: ${msg.body}`);
                     }
                 });
             },
@@ -122,7 +106,8 @@
             subscribeToConsumer2(topicPath) {
                 this.stompClient.subscribe(topicPath, (msg) => {
                     if (msg !== "") {
-                        this.consumer2Messages.push(msg.body);
+                        const currentTime = new Date().toLocaleString()
+                        this.consumer2Messages.push(`${currentTime}: ${msg.body}`);
                     }
                 });
             },
@@ -165,16 +150,52 @@
     };
 </script>
 
+
 <style>
+    .chat-app {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .producer-section {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .card,
+    .send-button {
+        flex: 1;
+    }
+
+    .card {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
     .section-title {
         font-size: 24px;
         margin-bottom: 10px;
     }
 
     .send-button {
-        width: 300px;
         font-size: 18px;
         margin-top: 20px;
+    }
+
+    .consumer-section {
+        display: flex;
+        gap: 20px;
     }
 
     .message-divider {
